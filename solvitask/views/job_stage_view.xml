@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="job_stage_tree_view" model="ir.ui.view">
+            <field name="name">solvitask.job.stage.tree</field>
+            <field name="model">solvitask.job.stage</field>
+            <field name="arch" type="xml">
+                <tree string="Stages" editable="bottom">
+                    <field name="sequence" widget="handle"/>
+                    <field name="name"/>
+                    <field name="is_started"/>
+                    <field name="is_done"/>
+                    <field name="fold"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="job_stage_act_window" model="ir.actions.act_window">
+            <field name="name">Job Stages</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">solvitask.job.stage</field>
+            <field name="view_mode">tree</field>
+        </record>
+
+        <menuitem name="Configuration" id="config_menu" parent="solvitask_root" sequence="90"/>
+        <menuitem name="Job Stages" id="job_stage_menu" parent="config_menu"
+                  action="job_stage_act_window" sequence="10"/>
+
+    </data>
+</odoo>
