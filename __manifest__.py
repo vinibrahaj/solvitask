@@ -6,7 +6,7 @@
     'category': 'Services',
     'author': 'Author',
     'website': 'Website',
-    'depends': ['base', 'mail'],
+    'depends': ['base', 'web'],
     'data': [
         'security/ir.model.access.csv',
         'data/job_stage_data.xml',

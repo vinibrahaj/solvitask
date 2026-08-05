@@ -15,11 +15,14 @@
                             </h1>
                         </div>
                         <group>
-                            <field name="base_price"/>
+                            <field name="unit_price"/>
                             <field name="default_tool_ids" widget="many2many_tags"/>
                         </group>
                         <group string="Description">
                             <field name="description" nolabel="1"/>
+                        </group>
+                        <group>
+                            <field name="worker_count"/>
                         </group>
                     </sheet>
                 </form>
@@ -32,7 +35,7 @@
             <field name="arch" type="xml">
                 <tree string="Service">
                     <field name="name"/>
-                    <field name="base_price"/>
+                    <field name="unit_price"/>
                 </tree>
             </field>
         </record>

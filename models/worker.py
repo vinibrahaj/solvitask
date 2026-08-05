@@ -11,8 +11,7 @@ class SolvitaskWorker(models.Model):
     email = fields.Char(string='Email')
     address = fields.Char(string='Address')
 
-    # Plain boolean. NOTE: don't call this 'active' — that name is reserved by
-    # Odoo and would hide (archive) the worker when set to False.
+
     available = fields.Boolean(string='Available', default=True)
 
     hourly_rate = fields.Float(string='Hourly Rate', digits=(12, 2))
@@ -25,5 +24,8 @@ class SolvitaskWorker(models.Model):
     # Many workers <-> many services. Creates a hidden link table automatically.
     service_ids = fields.Many2many('solvitask.service', string='Skills / Services')
 
-    # Reverse side of Job.worker_id.
-    job_ids = fields.One2many('solvitask.job', 'worker_id', string='Assigned Jobs')
+    job_ids = fields.Many2many(
+        'solvitask.job',
+        string='Assigned Jobs'
+    )
+

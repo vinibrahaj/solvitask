@@ -12,7 +12,6 @@
         <field name="binding_type">report</field>
     </record>
 
-    <!-- The QWeb template: 'docs' holds the job records being printed. -->
     <template id="report_job_invoice">
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="doc">

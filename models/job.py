@@ -1,7 +1,7 @@
 import base64
 
 from odoo import fields, models, api
-from odoo.exceptions import UserError, ValidationError
+from odoo.exceptions import ValidationError
 
 
 class SolvitaskJob(models.Model):
@@ -11,9 +11,11 @@ class SolvitaskJob(models.Model):
 
     name = fields.Char(string='Reference', compute='_compute_name', store=True)
 
-    # --- who / what ---
-    customer_id = fields.Many2one('solvitask.customer', string='Customer', required=True)
-    service_id = fields.Many2one('solvitask.service', string='Service')
+    customer_id = fields.Many2one('solvitask.customer',
+                                  string='Customer',
+                                  required=True)
+    service_id = fields.Many2one('solvitask.service',
+                                 string='Service')
     is_custom = fields.Boolean(string='Custom Request')
     description = fields.Text(string='Problem Description')
     problem_photo = fields.Image(string='Problem Photo')
@@ -28,7 +30,7 @@ class SolvitaskJob(models.Model):
     )
 
     # --- assignment / scheduling ---
-    worker_id = fields.Many2one('solvitask.worker', string='Assigned Plumber')
+    worker_ids = fields.Many2many('solvitask.worker', string='Assigned Plumber')
     scheduled_date = fields.Datetime(string='Scheduled Date')
     tool_ids = fields.Many2many('solvitask.tool', string='Required Tools')
 
@@ -48,6 +50,12 @@ class SolvitaskJob(models.Model):
     # A view's invisible="..." can only read fields on THIS record, not dotted
     # paths like stage_id.is_done -- so we pull the flag onto the job.
     stage_is_done = fields.Boolean(related='stage_id.is_done')
+
+    # How many plumbers this job needs, read off the chosen service.
+    # Informational: it tells the scheduler what to plan for.
+    workers_required = fields.Integer(
+        string='Workers Required', related='service_id.worker_count', readonly=True)
+
 
     # --- money ---
     initial_price = fields.Float(
@@ -84,25 +92,31 @@ class SolvitaskJob(models.Model):
     def _compute_initial_price(self):
         for job in self:
             if job.service_id:
-                # Transform: catalog base price -> this job's starting price.
-                job.initial_price = job.service_id.base_price
+                job.initial_price = job.service_id.unit_price
 
-    @api.depends('hours_worked', 'worker_id.hourly_rate',
-                 'material_line_ids.subtotal', 'initial_price')
+    @api.depends('hours_worked', 'worker_ids.hourly_rate',
+                 'material_line_ids.subtotal', 'initial_price', 'is_custom')
     def _compute_costs(self):
         for job in self:
-            job.labor_cost = job.hours_worked * job.worker_id.hourly_rate
+            # Listed services are charged at the catalog price, so no hourly
+            # labor. Only a custom job bills time.
+            if job.is_custom:
+                job.labor_cost = sum(
+                    worker.hourly_rate * job.hours_worked
+                    for worker in job.worker_ids
+                )
+            else:
+                job.labor_cost = 0.0
             job.material_cost = sum(job.material_line_ids.mapped('subtotal'))
             job.total_price = job.initial_price + job.labor_cost + job.material_cost
-
     # ==== RULE 1 & 2 =========================================================
     # One constraint guards BOTH the drag-and-drop drop and the status bar click,
     # because both just write stage_id -- and this fires on any such write.
-    @api.constrains('stage_id', 'worker_id', 'total_price')
+    @api.constrains('stage_id', 'worker_ids', 'total_price')
     def _check_started_requirements(self):
         for job in self:
             if job.stage_id.is_started:
-                if not job.worker_id:                       # RULE 1
+                if not job.worker_ids:                       # RULE 1
                     raise ValidationError(
                         "Assign a worker before starting this job.")
                 if job.total_price <= 0:                    # RULE 2
@@ -110,32 +124,63 @@ class SolvitaskJob(models.Model):
                         "Set an initial price before starting this job "
                         "(the total is currently 0).")
 
-    # ==== RULE 3 =============================================================
+    @api.onchange('is_custom')
+    def _onchange_is_custom(self):
+        if self.is_custom:
+            self.service_id=False
+
+    @api.onchange('scheduled_date')
+    def _onchange_scheduled_date(self):
+        if self.scheduled_date:
+            scheduled_stage = self.env['solvitask.job.stage'].search(
+                [('name', '=', 'Scheduled')],
+                limit=1
+            )
+            if scheduled_stage:
+                self.stage_id = scheduled_stage
+
+    @api.constrains('is_custom', 'service_id')
+    def _check_custom_or_service(self):
+        for job in self:
+            if job.is_custom and job.service_id:
+                raise ValidationError(
+                    "A custom request cannot also point to a listed service.")
+            if not job.is_custom and not job.service_id:
+                raise ValidationError(
+                    "Choose a service, or tick 'Custom request' and describe "
+                    "the problem.")
+
+    @api.constrains('worker_ids')
+    def _check_worker_availability(self):
+        for job in self:
+            unavailable = job.worker_ids.filtered(lambda w: not w.available)
+            if unavailable:
+                names = ", ".join(unavailable.mapped('name'))
+                raise ValidationError(
+                    f"The following worker(s) are not available: {names}"
+                )
+
+    # Generate invoice:
     def action_generate_invoice(self):
         self.ensure_one()
-        if not self.customer_id.email:
-            raise UserError("This customer has no email address on file.")
         # 1) render the QWeb report into raw PDF bytes
         pdf_content, _ = self.env['ir.actions.report']._render_qweb_pdf(
             'solvitask.report_job_invoice', self.ids)
-        # 2) save those bytes as a file attached to this job
+        # 2) save those bytes as a PDF file attached to this job (kept on record)
         attachment = self.env['ir.attachment'].create({
             'name': 'Invoice - %s.pdf' % (self.name or self.id),
             'type': 'binary',
-            'datas': base64.b64encode(pdf_content),   # bytes -> base64, the DB format
+            'datas': base64.b64encode(pdf_content),   # bytes -> base64, the stored format
             'res_model': 'solvitask.job',
             'res_id': self.id,
             'mimetype': 'application/pdf',
         })
-        # 3) create and send the email carrying that attachment
-        self.env['mail.mail'].create({
-            'subject': 'Invoice for %s' % (self.name or ''),
-            'email_to': self.customer_id.email,
-            'body_html': '<p>Dear %s,</p><p>Please find your invoice attached.</p>'
-                         % (self.customer_id.name or 'customer'),
-            'attachment_ids': [(6, 0, attachment.ids)],
-        }).send()
-        return True
+        # 3) hand that file to the browser as a download
+        return {
+            'type': 'ir.actions.act_url',
+            'url': '/web/content/%s?download=true' % attachment.id,
+            'target': 'new',
+        }
 
 
 class SolvitaskJobMaterial(models.Model):
