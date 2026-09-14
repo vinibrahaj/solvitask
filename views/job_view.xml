@@ -42,6 +42,13 @@
                                 string="Generate &amp; Send Invoice"
                                 type="object" class="oe_highlight"
                                 invisible="not stage_is_done"/>
+                        <button name="action_mark_started" string="Mark as Started"
+                                type="object"
+                                invisible="stage_is_started or is_cancelled"/>
+                        <button name="action_cancel" string="Cancel Job"
+                                type="object"
+                                invisible="is_cancelled"
+                                confirm="Cancel this job? If work has already started, only a manager can do this."/>
                         <!-- clickable status bar; moving here writes stage_id,
                              so RULE 1 &amp; 2 constraint applies to it too -->
                         <field name="stage_id" widget="statusbar"
@@ -49,9 +56,11 @@
                     </header>
                     <sheet>
                         <field name="stage_is_done" invisible="1"/>
+                        <field name="stage_is_started" invisible="1"/>
                         <div class="oe_title">
                             <h1><field name="name" readonly="1"/></h1>
                         </div>
+                        <field name="is_cancelled"/>
                         <group>
                             <group string="Request">
                                 <field name="customer_id"/>
@@ -61,6 +70,7 @@
                                 <field name="description" required="is_custom"
                                        placeholder="Describe the problem"/>
                                 <field name="problem_photo" widget="image"/>
+                                <field name="service_address"/>
                             </group>
                             <group string="Assignment">
                                 <field name="worker_ids"/>
@@ -87,6 +97,18 @@
                                 </group>
                                 <field name="work_notes"
                                        placeholder="What was found and fixed..."/>
+                            </page>
+                            <page string="Change Requests">
+                                <field name="request_ids">
+                                    <tree editable="bottom">
+                                        <field name="request_type"/>
+                                        <field name="requested_by"/>
+                                        <field name="new_scheduled_date"/>
+                                        <field name="new_address"/>
+                                        <field name="note"/>
+                                        <field name="state"/>
+                                    </tree>
+                                </field>
                             </page>
                         </notebook>
                     </sheet>

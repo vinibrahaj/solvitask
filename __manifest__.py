@@ -8,6 +8,7 @@
     'website': 'Website',
     'depends': ['base', 'web'],
     'data': [
+        'security/solvitask_security.xml',
         'security/ir.model.access.csv',
         'data/job_stage_data.xml',
         'report/job_invoice_report.xml',
@@ -19,6 +20,7 @@
         'views/material_view.xml',
         'views/job_stage_view.xml',
         'views/job_view.xml',
+        'views/job_request_view.xml',
     ],
     'demo': [],
     'installable': True,
