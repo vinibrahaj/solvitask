@@ -109,14 +109,14 @@
                                 <field name="work_notes"
                                        placeholder="What was found and fixed..."/>
                             </page>
-                            <page string="Change Requests">
+                            <page string="Requests">
                                 <field name="request_ids">
                                     <tree editable="bottom">
+                                        <field name="name"/>
                                         <field name="request_type"/>
-                                        <field name="requested_by"/>
-                                        <field name="new_scheduled_date"/>
-                                        <field name="new_address"/>
-                                        <field name="note"/>
+                                        <field name="source"/>
+                                        <field name="description"/>
+                                        <field name="manager_note"/>
                                         <field name="state"/>
                                     </tree>
                                 </field>

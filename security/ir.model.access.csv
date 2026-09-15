@@ -8,4 +8,3 @@ access_solvitask_job_stage,solvitask.job.stage,model_solvitask_job_stage,base.gr
 access_solvitask_job,solvitask.job,model_solvitask_job,base.group_user,1,1,1,1
 access_solvitask_job_material,solvitask.job.material,model_solvitask_job_material,base.group_user,1,1,1,1
 access_solvitask_requests,solvitask.requests,model_solvitask_requests,base.group_user,1,1,1,1
-access_solvitask_job_request,solvitask.job.request,model_solvitask_job_request,base.group_user,1,1,1,1

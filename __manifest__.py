@@ -21,7 +21,6 @@
         'views/job_stage_view.xml',
         'views/job_view.xml',
         'views/requests_view.xml',
-        'views/job_request_view.xml',
     ],
     'demo': [],
     'installable': True,
