@@ -7,8 +7,5 @@ access_solvitask_material,solvitask.material,model_solvitask_material,base.group
 access_solvitask_job_stage,solvitask.job.stage,model_solvitask_job_stage,base.group_user,1,1,1,1
 access_solvitask_job,solvitask.job,model_solvitask_job,base.group_user,1,1,1,1
 access_solvitask_job_material,solvitask.job.material,model_solvitask_job_material,base.group_user,1,1,1,1
-<<<<<<< HEAD
 access_solvitask_requests,solvitask.requests,model_solvitask_requests,base.group_user,1,1,1,1
-=======
 access_solvitask_job_request,solvitask.job.request,model_solvitask_job_request,base.group_user,1,1,1,1
->>>>>>> 363dfc8b76f846a74b25bc46b5cb73d0d99f3377
