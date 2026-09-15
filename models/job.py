@@ -24,8 +24,6 @@ class SolvitaskJob(models.Model):
     service_address = fields.Char(string='Service Address')
 
     is_cancelled = fields.Boolean(string='Cancelled', default=False)
-    request_ids = fields.One2many(
-        'solvitask.job.request', 'job_id', string='Change Requests')
 
     priority = fields.Selection(
         string='Priority',
