@@ -21,6 +21,11 @@ class SolvitaskJob(models.Model):
     is_custom = fields.Boolean(string='Custom Request')
     description = fields.Text(string='Problem Description')
     problem_photo = fields.Image(string='Problem Photo')
+    service_address = fields.Char(string='Service Address')
+
+    is_cancelled = fields.Boolean(string='Cancelled', default=False)
+    request_ids = fields.One2many(
+        'solvitask.job.request', 'job_id', string='Change Requests')
 
     priority = fields.Selection(
         string='Priority',
@@ -56,6 +61,7 @@ class SolvitaskJob(models.Model):
     # A view's invisible="..." can only read fields on THIS record, not dotted
     # paths like stage_id.is_done -- so we pull the flag onto the job.
     stage_is_done = fields.Boolean(related='stage_id.is_done')
+    stage_is_started = fields.Boolean(related='stage_id.is_started')
 
     # How many plumbers this job needs, read off the chosen service.
     # Informational: it tells the scheduler what to plan for.
@@ -207,6 +213,24 @@ class SolvitaskJob(models.Model):
                 raise ValidationError(
                     f"The following worker(s) are not available: {names}"
                 )
+
+    # Plumber marks the job as started (moves it to the first "started" stage).
+    def action_mark_started(self):
+        started_stage = self.env['solvitask.job.stage'].search(
+            [('is_started', '=', True)], order='sequence', limit=1)
+        for job in self:
+            if started_stage:
+                job.stage_id = started_stage
+
+    # Cancel the job. Once work has started, only a manager may do this.
+    def action_cancel(self):
+        for job in self:
+            if job.stage_id.is_started and not self.env.user.has_group(
+                    'solvitask.group_solvitask_manager'):
+                raise ValidationError(
+                    "This job has already started. Only a manager can "
+                    "cancel it.")
+            job.is_cancelled = True
 
     # Generate invoice:
     def action_generate_invoice(self):
