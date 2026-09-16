@@ -22,7 +22,8 @@
                                 <field name="birthday"/>
                             </group>
                             <group string="Activity">
-                                <field name="job_count"/>
+                                <field name="job_ids"/>
+                                <field name="request_ids"/>
                             </group>
                         </group>
                         <notebook>
