@@ -17,9 +17,11 @@ class SolvitaskCustomer(models.Model):
         inverse_name='customer_id',
         string='Jobs'
     )
-
-    job_count = fields.Integer(string='Job Count', compute='_compute_job_count')
-
+    request_ids = fields.One2many(
+        comodel_name="solvitask.requests",
+        inverse_name="customer_id",
+        string="Requests"
+    )
     @api.depends('job_ids')
     def _compute_job_count(self):
         for customer in self:
