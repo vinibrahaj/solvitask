@@ -52,7 +52,6 @@
                     <field name="surname"/>
                     <field name="phone"/>
                     <field name="email"/>
-                    <field name="job_count"/>
                 </tree>
             </field>
         </record>
