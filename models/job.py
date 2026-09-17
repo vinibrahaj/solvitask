@@ -25,6 +25,7 @@ POST_START_ORDER = ['stage_in_progress', 'stage_ready_invoice',
                      'stage_invoiced', 'stage_paid']
 
 STARTED_STAGES = set(POST_START_ORDER)
+STARTED_STAGE = 'stage_in_progress'
 DONE_STAGES = {'stage_invoiced', 'stage_paid'}
 SCHEDULED_STAGE = 'stage_scheduled'
 CANCELED_STAGE = 'stage_canceled'
