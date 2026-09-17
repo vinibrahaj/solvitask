@@ -270,7 +270,11 @@ class SolvitaskJob(models.Model):
     # --- buttons ---
     def action_mark_started(self):
         for job in self:
-            job.stage_id = STARTED_STAGE
+            job.stage_id = 'stage_in_progress'
+
+    def action_mark_scheduled(self):
+        for job in self:
+            job.stage_id = 'stage_scheduled'
 
     def action_cancel(self):
         for job in self:
