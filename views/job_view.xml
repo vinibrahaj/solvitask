@@ -12,7 +12,7 @@
                         records_draggable="true">
                     <field name="stage_id"/>
                     <field name="worker_ids"/>
-                    <field name="is_cancelled">
+                    <field name="is_cancelled"/>
                     <templates>
                         <t t-name="kanban-box">
                             <div class="oe_kanban_card oe_kanban_global_click">
