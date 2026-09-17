@@ -1,5 +1,4 @@
-from odoo import fields, models, api
-from odoo.exceptions import ValidationError
+from odoo import fields, models
 
 
 class SolvitaskService(models.Model):
