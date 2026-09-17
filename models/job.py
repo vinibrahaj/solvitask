@@ -13,6 +13,9 @@ STAGE_SELECTION = [
     ('stage_paid', 'Paid & Closed'),
     ('stage_canceled', 'Canceled')
 ]
+
+STAGE_LABELS = dict(STAGE_SELECTION)
+
 # Before the job has started, movement is restricted to these two exits.
 PRE_START_STAGES = {'stage_new', 'stage_scheduled'}
 ALLOWED_FROM_PRE_START = {'stage_in_progress', 'stage_canceled'}
