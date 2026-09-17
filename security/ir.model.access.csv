@@ -4,7 +4,6 @@ access_solvitask_worker,solvitask.worker,model_solvitask_worker,base.group_user,
 access_solvitask_service,solvitask.service,model_solvitask_service,base.group_user,1,1,1,1
 access_solvitask_tool,solvitask.tool,model_solvitask_tool,base.group_user,1,1,1,1
 access_solvitask_material,solvitask.material,model_solvitask_material,base.group_user,1,1,1,1
-access_solvitask_job_stage,solvitask.job.stage,model_solvitask_job_stage,base.group_user,1,1,1,1
 access_solvitask_job,solvitask.job,model_solvitask_job,base.group_user,1,1,1,1
 access_solvitask_job_material,solvitask.job.material,model_solvitask_job_material,base.group_user,1,1,1,1
 access_solvitask_requests,solvitask.requests,model_solvitask_requests,base.group_user,1,1,1,1
