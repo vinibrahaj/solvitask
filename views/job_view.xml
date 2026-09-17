@@ -8,10 +8,11 @@
             <field name="model">solvitask.job</field>
             <field name="arch" type="xml">
                 <kanban default_group_by="stage_id" class="o_kanban_small_column"
-                group_create="false" group_edit="false" groups_draggable="false"
-                records_draggable="true">
+                        group_create="false" group_edit="false" groups_draggable="false"
+                        records_draggable="true">
                     <field name="stage_id"/>
                     <field name="worker_ids"/>
+                    <field name="is_cancelled">
                     <templates>
                         <t t-name="kanban-box">
                             <div class="oe_kanban_card oe_kanban_global_click">
@@ -21,7 +22,8 @@
                                     </strong>
                                     <div><field name="customer_id"/></div>
                                     <div t-if="record.worker_ids.raw_value">
-                                        <i class="fa fa-user" role="img"/> <field name="worker_ids"/>
+                                        <i class="fa fa-user" role="img"/>
+                                        <field name="worker_ids"/>
                                     </div>
                                     <div><field name="total_price"/></div>
                                     <field name="priority" widget="priority"/>
@@ -40,13 +42,13 @@
                 <form string="Job">
                     <header>
                         <!-- RULE 3: only shown once the stage is a "finished" one -->
+                        <button name="action_mark_started" string="Mark as Started"
+                                type="object" class="oe_highlight"
+                                invisible="stage_is_started or is_cancelled"/>
                         <button name="action_generate_invoice"
                                 string="Generate &amp; Send Invoice"
                                 type="object" class="oe_highlight"
                                 invisible="not stage_is_done"/>
-                        <button name="action_mark_started" string="Mark as Started"
-                                type="object"
-                                invisible="stage_is_started or is_cancelled"/>
                         <button name="action_cancel" string="Cancel Job"
                                 type="object"
                                 invisible="is_cancelled"
@@ -54,9 +56,13 @@
                         <!-- clickable status bar; moving here writes stage_id,
                              so RULE 1 &amp; 2 constraint applies to it too -->
                         <field name="stage_id" widget="statusbar"
-                               options="{'clickable': '1'}"/>
+                               options="{'clickable': '1'}"
+                               statusbar_visible="stage_new,stage_scheduled,stage_in_progress,stage_ready_invoice,stage_invoiced,stage_paid"/>
                     </header>
                     <sheet>
+                        <widget name="web_ribbon" title="Canceled"
+                                bg_color="text-bg-danger"
+                                invisible="not is_cancelled"/>
                         <div class="oe_button_box" name="button_box">
                             <button type="object" name="action_view_requests"
                                     class="oe_stat_button" icon="fa-comments-o">
@@ -156,11 +162,17 @@
                             domain="[('is_custom', '=', True)]"/>
                     <filter string="Listed services" name="filter_listed"
                             domain="[('is_custom', '=', False)]"/>
-
+                    <separator/>
                     <filter string="Unassigned" name="filter_unassigned"
                             domain="[('worker_ids', '=', False)]"/>
                     <filter string="Emergency" name="filter_emergency"
                             domain="[('priority', '=', 'emergency')]"/>
+                    <separator/>
+                    <filter string="Open jobs" name="filter_open"
+                            domain="[('stage_id', 'not in',
+                                      ['stage_paid', 'stage_canceled'])]"/>
+                    <filter string="Canceled" name="filter_canceled"
+                            domain="[('stage_id', '=', 'stage_canceled')]"/>
                     <group expand="0" string="Group By">
                         <filter string="Stage" name="group_by_stage"
                                 context="{'group_by': 'stage_id'}"/>
