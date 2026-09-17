@@ -108,11 +108,6 @@ class SolvitaskJob(models.Model):
         for job in self:
             job.is_cancelled = job.stage_id == CANCELED_STAGE
 
-    # How many plumbers this job needs, read off the chosen service.
-    # Informational: it tells the scheduler what to plan for.
-    workers_required = fields.Integer(
-        string='Workers Required', related='service_id.worker_count', readonly=True)
-
     # --- requests raised against this job (by a customer or a plumber) ---
     request_ids = fields.One2many(
         'solvitask.requests', 'job_id', string='Requests')
