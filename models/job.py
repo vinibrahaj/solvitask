@@ -15,21 +15,31 @@ STAGE_SELECTION = [
 ]
 
 STAGE_LABELS = dict(STAGE_SELECTION)
+# this is a safety check whenever we may add a new stage
+assert set(ALLOWED_TRANSITIONS) == set(STAGE_LABELS), \
+    "ALLOWED_TRANSITIONS is out of sync with STAGE_SELECTION"
 
-# Before the job has started, movement is restricted to these two exits.
-PRE_START_STAGES = {'stage_new', 'stage_scheduled'}
-ALLOWED_FROM_PRE_START = {'stage_in_progress', 'stage_canceled'}
+# Which stages a job may move to, keyed by where it is now.
+# Empty set = terminal.
+ALLOWED_TRANSITIONS = {
+    'stage_new':            {'stage_scheduled', 'stage_in_progress', 'stage_canceled'},
+    'stage_scheduled':      {'stage_in_progress', 'stage_canceled'},
+    'stage_in_progress':    {'stage_ready_invoice', 'stage_canceled'},
+    'stage_ready_invoice':  {'stage_invoiced', 'stage_canceled'},
+    'stage_invoiced':       {'stage_paid', 'stage_canceled'},
+    'stage_paid':           set(),
+    'stage_canceled':       set(),
+}
 
-# Once started, this is the strict forward order the old rule applied to.
-POST_START_ORDER = ['stage_in_progress', 'stage_ready_invoice',
-                     'stage_invoiced', 'stage_paid']
-
-STARTED_STAGES = set(POST_START_ORDER)
+# Single stages referenced by the action buttons and the cron.
 STARTED_STAGE = 'stage_in_progress'
-DONE_STAGES = {'stage_invoiced', 'stage_paid'}
 SCHEDULED_STAGE = 'stage_scheduled'
 CANCELED_STAGE = 'stage_canceled'
 
+# Groups used by _compute_stage_flags to show/hide buttons in the form.
+STARTED_STAGES = {'stage_in_progress', 'stage_ready_invoice',
+                  'stage_invoiced', 'stage_paid'}
+DONE_STAGES = {'stage_invoiced', 'stage_paid'}
 
 class SolvitaskJob(models.Model):
     _name = 'solvitask.job'
@@ -175,48 +185,27 @@ class SolvitaskJob(models.Model):
             job.material_cost = sum(job.material_line_ids.mapped('subtotal'))
             job.total_price = job.initial_price + job.labor_cost + job.material_cost
 
-    # ==== STAGE MOVEMENT RULES ==============================================
-    # Both the kanban drag-and-drop and the clickable status bar do the same
-    # thing: write stage_id. So guarding write() guards both at once.
+    # stage movement logic
     def write(self, vals):
-        if 'stage_id' in vals:
-            new_stage = vals['stage_id']
-            for job in self:
-                old_stage = job.stage_id
-                if not old_stage or old_stage == new_stage:
-                    continue
- 
-                if old_stage == CANCELED_STAGE:
-                    # A canceled job is a dead end. Reopening it means
-                    # duplicating it into a fresh job.
+    if 'stage_id' in vals:
+        new_stage = vals['stage_id']
+        for job in self:
+            old_stage = job.stage_id
+            if not old_stage or old_stage == new_stage:
+                continue
+            if new_stage not in ALLOWED_TRANSITIONS.get(old_stage, set()):
+                raise UserError(
+                    "A job in '%s' can't be moved to '%s'."
+                    % (STAGE_LABELS.get(old_stage, old_stage),
+                       STAGE_LABELS.get(new_stage, new_stage)))
+            if new_stage == SCHEDULED_STAGE:
+                date = fields.Datetime.to_datetime(
+                    vals.get('scheduled_date', job.scheduled_date))
+                if not date or date <= fields.Datetime.now():
                     raise UserError(
-                        "This job is canceled and can't be moved back into "
-                        "the pipeline.")
- 
-                if old_stage in PRE_START_STAGES:
-                    # RULE: from New / Scheduled there are only two exits.
-                    if new_stage not in ALLOWED_FROM_PRE_START:
-                        raise UserError(
-                            "A job in '%s' can only be moved to 'In Progress' "
-                            "or canceled -- not to '%s'."
-                            % (STAGE_LABELS.get(old_stage, old_stage),
-                               STAGE_LABELS.get(new_stage, new_stage)))
- 
-                elif new_stage != CANCELED_STAGE:
-                    # RULE: once started, forward-only.
-                    if new_stage not in POST_START_ORDER:
-                        raise UserError(
-                            "A started job can't go back to '%s'."
-                            % STAGE_LABELS.get(new_stage, new_stage))
-                    if (POST_START_ORDER.index(new_stage)
-                            < POST_START_ORDER.index(old_stage)):
-                        raise UserError(
-                            "A job can't move backward in the pipeline "
-                            "(from '%s' to '%s')."
-                            % (STAGE_LABELS.get(old_stage, old_stage),
-                               STAGE_LABELS.get(new_stage, new_stage)))
- 
-        return super().write(vals)
+                        "Set a scheduled date in the future before "
+                        "moving this job to Scheduled.")
+    return super().write(vals)
 
     """ 
     ==== RULE 1 & 2 =========================================================
@@ -269,8 +258,11 @@ class SolvitaskJob(models.Model):
 
     # --- buttons ---
     def action_mark_started(self):
-        for job in self:
-            job.stage_id = 'stage_in_progress'
+    for job in self:
+        vals = {'stage_id': STARTED_STAGE}
+        if not job.scheduled_date:
+            vals['scheduled_date'] = fields.Datetime.now()
+        job.write(vals)
 
     def action_mark_scheduled(self):
         for job in self:
