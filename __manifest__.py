@@ -18,7 +18,6 @@
         'views/service_view.xml',
         'views/tool_view.xml',
         'views/material_view.xml',
-        'views/job_stage_view.xml',
         'views/job_view.xml',
         'views/requests_view.xml',
     ],
