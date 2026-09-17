@@ -80,14 +80,20 @@ class SolvitaskJob(models.Model):
         required=True
     )
 
+    is_cancelled = fields.Boolean(string='Cancelled', compute='_compute_is_cancelled', store=True)
     stage_is_done = fields.Boolean(compute='_compute_state_flags')
     stage_is_started = fields.Boolean(compute='_compute_state_flags')
 
-    @api.depends
+    @api.depends('stage_id')
     def _compute_stage_flags(self):
         for job in self:
             job.stage_is_started = job.stage_id in STARTED_STAGES
             job.stage_is_done = job.stage_id in DONE_STAGES
+
+    @api.depends('stage_id')
+    def _compute_is_cancelled(self):
+        for job in self:
+            job.is_cancelled = job.stage_id == CANCELED_STAGE
 
     # How many plumbers this job needs, read off the chosen service.
     # Informational: it tells the scheduler what to plan for.
@@ -172,15 +178,59 @@ class SolvitaskJob(models.Model):
             job.material_cost = sum(job.material_line_ids.mapped('subtotal'))
             job.total_price = job.initial_price + job.labor_cost + job.material_cost
 
-    
+    # ==== STAGE MOVEMENT RULES ==============================================
+    # Both the kanban drag-and-drop and the clickable status bar do the same
+    # thing: write stage_id. So guarding write() guards both at once.
+    def write(self, vals):
+        if 'stage_id' in vals:
+            new_stage = vals['stage_id']
+            for job in self:
+                old_stage = job.stage_id
+                if not old_stage or old_stage == new_stage:
+                    continue
+ 
+                if old_stage == CANCELED_STAGE:
+                    # A canceled job is a dead end. Reopening it means
+                    # duplicating it into a fresh job.
+                    raise UserError(
+                        "This job is canceled and can't be moved back into "
+                        "the pipeline.")
+ 
+                if old_stage in PRE_START_STAGES:
+                    # RULE: from New / Scheduled there are only two exits.
+                    if new_stage not in ALLOWED_FROM_PRE_START:
+                        raise UserError(
+                            "A job in '%s' can only be moved to 'In Progress' "
+                            "or canceled -- not to '%s'."
+                            % (STAGE_LABELS.get(old_stage, old_stage),
+                               STAGE_LABELS.get(new_stage, new_stage)))
+ 
+                elif new_stage != CANCELED_STAGE:
+                    # RULE: once started, forward-only.
+                    if new_stage not in POST_START_ORDER:
+                        raise UserError(
+                            "A started job can't go back to '%s'."
+                            % STAGE_LABELS.get(new_stage, new_stage))
+                    if (POST_START_ORDER.index(new_stage)
+                            < POST_START_ORDER.index(old_stage)):
+                        raise UserError(
+                            "A job can't move backward in the pipeline "
+                            "(from '%s' to '%s')."
+                            % (STAGE_LABELS.get(old_stage, old_stage),
+                               STAGE_LABELS.get(new_stage, new_stage)))
+ 
+        return super().write(vals)
 
-    # ==== RULE 1 & 2 =========================================================
-    # One constraint guards BOTH the drag-and-drop drop and the status bar click,
-    # because both just write stage_id -- and this fires on any such write.
+    """ 
+    ==== RULE 1 & 2 =========================================================
+    - A job may not sit in a started stage without a worker and a price.
+    - Canceled jpbs are deliberately exempt -- you must be able to cancel a
+    - half-filled job 
+    """
     @api.constrains('stage_id', 'worker_ids', 'total_price')
     def _check_started_requirements(self):
         for job in self:
-            if job.stage_id.stage_new:
+            if job.stage_id in STARTED_STAGES:
                 if not job.worker_ids:                       # RULE 1
                     raise ValidationError(
                         "Assign a worker before starting this job.")
@@ -196,14 +246,8 @@ class SolvitaskJob(models.Model):
 
     @api.onchange('scheduled_date')
     def _onchange_scheduled_date(self):
-        if self.scheduled_date:
-            scheduled_stage = self.env['solvitask.job.stage'].search(
-                [('is_scheduled', '=', True)],
-                order='sequence',
-                limit=1
-            )
-            if scheduled_stage and not (self.stage_id.is_started or self.stage_id.is_done):
-                self.stage_id = scheduled_stage
+        if self.scheduled_date and self.stage_id == 'stage_new':
+            self.stage_id = SCHEDULED_STAGE
 
     @api.constrains('is_custom', 'service_id')
     def _check_custom_or_service(self):
@@ -225,6 +269,11 @@ class SolvitaskJob(models.Model):
                 raise ValidationError(
                     f"The following worker(s) are not available: {names}"
                 )
+
+    # --- buttons ---
+    def action_mark_started(self):
+        for job in self:
+            job.stage_id = STARTED_STAGE
 
     def action_cancel(self):
         for job in self:
