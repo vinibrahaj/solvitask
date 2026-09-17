@@ -80,8 +80,8 @@ class SolvitaskJob(models.Model):
     )
 
     is_cancelled = fields.Boolean(string='Cancelled', compute='_compute_is_cancelled', store=True)
-    stage_is_done = fields.Boolean(compute='_compute_state_flags')
-    stage_is_started = fields.Boolean(compute='_compute_state_flags')
+    stage_is_done = fields.Boolean(compute='_compute_stage_flags')
+    stage_is_started = fields.Boolean(compute='_compute_stage_flags')
 
     @api.depends('stage_id')
     def _compute_stage_flags(self):
