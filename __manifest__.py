@@ -10,7 +10,6 @@
     'data': [
         'security/solvitask_security.xml',
         'security/ir.model.access.csv',
-        'data/job_stage_data.xml',
         'report/job_invoice_report.xml',
         'views/menus.xml',
         'views/customer_view.xml',
