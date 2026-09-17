@@ -275,7 +275,7 @@ class SolvitaskJob(models.Model):
                     raise ValidationError(
                         "This job has alredy started. Only a manager can cancel it."
                     )
-                    job.stage_id = CANCELED_STAGE
+        job.stage_id = CANCELED_STAGE
 
     # Generate invoice:
     def action_generate_invoice(self):
