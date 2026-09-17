@@ -7,7 +7,6 @@ from odoo.exceptions import ValidationError, UserError
 STAGE_SELECTION = [
     ('stage_new', 'New Jobs'),
     ('stage_scheduled', 'Scheduled'),
-    ('stage_pending_materials', 'Pending Parts & Materials'),
     ('stage_in_progress', 'In Progress'),
     ('stage_ready_invoice', 'Ready to Invoice'),
     ('stage_invoiced', 'Invoiced'),
@@ -47,7 +46,7 @@ class SolvitaskJob(models.Model):
     description = fields.Text(string='Problem Description')
     problem_photo = fields.Image(string='Problem Photo')
     service_address = fields.Char(string='Service Address')
-    is_cancelled = fields.Boolean(string='Cancelled', default=False)
+    
     priority = fields.Selection(
         string='Priority',
         selection=[('low', 'Low'),
@@ -142,12 +141,6 @@ class SolvitaskJob(models.Model):
                 'default_customer_id': self.customer_id.id,
             },
         }
-
-    @api.model
-    def _read_group_stage_ids(self, stages, domain, *args):
-        # Return ALL stages so every column shows on the board, even empty ones.
-        # (*args safely absorbs the extra 'order' arg some Odoo versions pass.)
-        return stages.search([], order='sequence')
 
     # ---- computes (the transforms) ----
     @api.depends('service_id', 'customer_id')
@@ -317,7 +310,6 @@ class SolvitaskJobMaterial(models.Model):
                                   required=True)
     quantity = fields.Float(string='Quantity', default=1.0)
     unit_price = fields.Float(string='Unit Price',
-                              related='material_id.unit_price',
                               compute='_compute_unit_price',
                               store=True, digits=(12, 2), readonly=False)
     @api.depends('material_id')
