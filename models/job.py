@@ -4,16 +4,41 @@ from odoo import fields, models, api
 from odoo.exceptions import ValidationError, UserError
 
 
+STAGE_SELECTION = [
+    ('stage_new', 'New Jobs'),
+    ('stage_scheduled', 'Scheduled'),
+    ('stage_pending_materials', 'Pending Parts & Materials'),
+    ('stage_in_progress', 'In Progress'),
+    ('stage_ready_invoice', 'Ready to Invoice'),
+    ('stage_invoiced', 'Invoiced'),
+    ('stage_paid', 'Paid & Closed'),
+    ('stage_canceled', 'Canceled')
+]
+# Before the job has started, movement is restricted to these two exits.
+PRE_START_STAGES = {'stage_new', 'stage_scheduled'}
+ALLOWED_FROM_PRE_START = {'stage_in_progress', 'stage_canceled'}
+
+# Once started, this is the strict forward order the old rule applied to.
+POST_START_ORDER = ['stage_in_progress', 'stage_ready_invoice',
+                     'stage_invoiced', 'stage_paid']
+
+STARTED_STAGES = set(POST_START_ORDER)
+DONE_STAGES = {'stage_invoiced', 'stage_paid'}
+SCHEDULED_STAGE = 'stage_scheduled'
+CANCELED_STAGE = 'stage_canceled'
+
+
 class SolvitaskJob(models.Model):
     _name = 'solvitask.job'
     _description = 'Service Request / Job'
     _order = 'scheduled_date desc, id desc'
 
     name = fields.Char(string='Reference', compute='_compute_name', store=True)
-
-    customer_id = fields.Many2one('solvitask.customer',
-                                  string='Customer',
-                                  required=True)
+    customer_id = fields.Many2one(
+        comodel_name='solvitask.customer',
+        string='Customer',
+        required=True
+    )
     service_id = fields.Many2one(
         comodel_name='solvitask.service',
         string='Service'
@@ -22,9 +47,7 @@ class SolvitaskJob(models.Model):
     description = fields.Text(string='Problem Description')
     problem_photo = fields.Image(string='Problem Photo')
     service_address = fields.Char(string='Service Address')
-
     is_cancelled = fields.Boolean(string='Cancelled', default=False)
-
     priority = fields.Selection(
         string='Priority',
         selection=[('low', 'Low'),
@@ -50,16 +73,21 @@ class SolvitaskJob(models.Model):
     hours_worked = fields.Float(string='Hours Worked')
 
     # --- pipeline stage: this is what the kanban board drags between ---
-    stage_id = fields.Many2one(
-        'solvitask.job.stage', string='Stage',
-        default=lambda self: self._default_stage_id(),
-        group_expand='_read_group_stage_ids',
+    stage_id = fields.Selection(
+        selection=STAGE_SELECTION,
+        string='Stage',
+        default='stage_new',
+        required=True
     )
-    # Related mirror so the form's invoice button can test the stage.
-    # A view's invisible="..." can only read fields on THIS record, not dotted
-    # paths like stage_id.is_done -- so we pull the flag onto the job.
-    stage_is_done = fields.Boolean(related='stage_id.is_done')
-    stage_is_started = fields.Boolean(related='stage_id.is_started')
+
+    stage_is_done = fields.Boolean(compute='_compute_state_flags')
+    stage_is_started = fields.Boolean(compute='_compute_state_flags')
+
+    @api.depends
+    def _compute_stage_flags(self):
+        for job in self:
+            job.stage_is_started = job.stage_id in STARTED_STAGES
+            job.stage_is_done = job.stage_id in DONE_STAGES
 
     # How many plumbers this job needs, read off the chosen service.
     # Informational: it tells the scheduler what to plan for.
@@ -88,10 +116,6 @@ class SolvitaskJob(models.Model):
     total_price = fields.Float(string='Total Price',
                                compute='_compute_costs', store=True, digits=(12, 2))
 
-    # ---- default stage + kanban column expansion ----
-    def _default_stage_id(self):
-        # New jobs land in the first stage by sequence.
-        return self.env['solvitask.job.stage'].search([], order='sequence', limit=1)
 
     @api.depends('request_ids')
     def _compute_request_count(self):
@@ -148,17 +172,7 @@ class SolvitaskJob(models.Model):
             job.material_cost = sum(job.material_line_ids.mapped('subtotal'))
             job.total_price = job.initial_price + job.labor_cost + job.material_cost
 
-    # The kanban board and the status bar both just write stage_id, so this
-    # single override blocks moving a job backward from either one.
-    def write(self, vals):
-        if 'stage_id' in vals:
-            new_stage = self.env['solvitask.job.stage'].browse(vals['stage_id'])
-            for job in self:
-                if job.stage_id and new_stage.sequence < job.stage_id.sequence:
-                    raise UserError(
-                        "A job can't move backward in the pipeline "
-                        "(from '%s' to '%s')." % (job.stage_id.name, new_stage.name))
-        return super().write(vals)
+    
 
     # ==== RULE 1 & 2 =========================================================
     # One constraint guards BOTH the drag-and-drop drop and the status bar click,
@@ -166,7 +180,7 @@ class SolvitaskJob(models.Model):
     @api.constrains('stage_id', 'worker_ids', 'total_price')
     def _check_started_requirements(self):
         for job in self:
-            if job.stage_id.is_started:
+            if job.stage_id.stage_new:
                 if not job.worker_ids:                       # RULE 1
                     raise ValidationError(
                         "Assign a worker before starting this job.")
@@ -212,23 +226,14 @@ class SolvitaskJob(models.Model):
                     f"The following worker(s) are not available: {names}"
                 )
 
-    # Plumber marks the job as started (moves it to the first "started" stage).
-    def action_mark_started(self):
-        started_stage = self.env['solvitask.job.stage'].search(
-            [('is_started', '=', True)], order='sequence', limit=1)
-        for job in self:
-            if started_stage:
-                job.stage_id = started_stage
-
-    # Cancel the job. Once work has started, only a manager may do this.
     def action_cancel(self):
         for job in self:
-            if job.stage_id.is_started and not self.env.user.has_group(
-                    'solvitask.group_solvitask_manager'):
-                raise ValidationError(
-                    "This job has already started. Only a manager can "
-                    "cancel it.")
-            job.is_cancelled = True
+            if job.stage_id in STARTED_STAGES and not self.env.user.has_group(
+                'solvitask.group_solvitask_manager'):
+                    raise ValidationError(
+                        "This job has alredy started. Only a manager can cancel it."
+                    )
+                    job.stage_id = CANCELED_STAGE
 
     # Generate invoice:
     def action_generate_invoice(self):
@@ -271,8 +276,12 @@ class SolvitaskJobMaterial(models.Model):
         for line in self:
             line.unit_price = line.material_id.unit_price
 
-    subtotal = fields.Float(string='Subtotal',
-                            compute='_compute_subtotal', store=True, digits=(12, 2))
+    subtotal = fields.Float(
+        string='Subtotal',
+        compute='_compute_subtotal', 
+        store=True, 
+        digits=(12, 2)
+    )
 
     @api.depends('quantity', 'unit_price')  # me kete llogaritet ne cast pa u bere save
     def _compute_subtotal(self):
