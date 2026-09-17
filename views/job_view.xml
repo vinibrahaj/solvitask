@@ -42,9 +42,12 @@
                 <form string="Job">
                     <header>
                         <!-- RULE 3: only shown once the stage is a "finished" one -->
-                        <button name="action_mark_started" string="Mark as Started"
+                        <button name="action_mark_started" string="Start Now"
                                 type="object" class="oe_highlight"
                                 invisible="stage_is_started or is_cancelled"/>
+                        <button name="action_mark_scheduled" string="Schedule"
+                                type="object" class="oe_highlight"
+                                invisible="stage_is_started or is cancelled"/>
                         <button name="action_generate_invoice"
                                 string="Generate &amp; Send Invoice"
                                 type="object" class="oe_highlight"
