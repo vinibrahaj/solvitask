@@ -9,8 +9,8 @@
     'depends': ['base', 'web'],
     'assets': {
         [
-            'solvitask/static/src/scss/solvitask.css',
-            'solvitask/static/src/scss/wrapper.js'
+            'solvitask/static/src/scss/solvitask.scss',
+            'solvitask/static/src/js/wrapper.js'
         ]
     },
     'data': [
