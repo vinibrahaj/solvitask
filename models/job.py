@@ -182,25 +182,25 @@ class SolvitaskJob(models.Model):
 
     # stage movement logic
     def write(self, vals):
-    if 'stage_id' in vals:
-        new_stage = vals['stage_id']
-        for job in self:
-            old_stage = job.stage_id
-            if not old_stage or old_stage == new_stage:
-                continue
-            if new_stage not in ALLOWED_TRANSITIONS.get(old_stage, set()):
-                raise UserError(
-                    "A job in '%s' can't be moved to '%s'."
-                    % (STAGE_LABELS.get(old_stage, old_stage),
-                       STAGE_LABELS.get(new_stage, new_stage)))
-            if new_stage == SCHEDULED_STAGE:
-                date = fields.Datetime.to_datetime(
-                    vals.get('scheduled_date', job.scheduled_date))
-                if not date or date <= fields.Datetime.now():
+        if 'stage_id' in vals:
+            new_stage = vals['stage_id']
+            for job in self:
+                old_stage = job.stage_id
+                if not old_stage or old_stage == new_stage:
+                    continue
+                if new_stage not in ALLOWED_TRANSITIONS.get(old_stage, set()):
                     raise UserError(
-                        "Set a scheduled date in the future before "
-                        "moving this job to Scheduled.")
-    return super().write(vals)
+                        "A job in '%s' can't be moved to '%s'."
+                        % (STAGE_LABELS.get(old_stage, old_stage),
+                           STAGE_LABELS.get(new_stage, new_stage)))
+                if new_stage == SCHEDULED_STAGE:
+                    date = fields.Datetime.to_datetime(
+                        vals.get('scheduled_date', job.scheduled_date))
+                    if not date or date <= fields.Datetime.now():
+                        raise UserError(
+                            "Set a scheduled date in the future before "
+                            "moving this job to Scheduled.")
+        return super().write(vals)
 
     """ 
     ==== RULE 1 & 2 =========================================================
