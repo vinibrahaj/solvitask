@@ -253,10 +253,10 @@ class SolvitaskJob(models.Model):
 
     # --- buttons ---
     def action_mark_started(self):
-    for job in self:
-        vals = {'stage_id': STARTED_STAGE}
-        if not job.scheduled_date:
-            vals['scheduled_date'] = fields.Datetime.now()
+        for job in self:
+            vals = {'stage_id': STARTED_STAGE}
+            if not job.scheduled_date:
+                vals['scheduled_date'] = fields.Datetime.now()
         job.write(vals)
 
     def action_mark_scheduled(self):
