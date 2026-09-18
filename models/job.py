@@ -257,7 +257,7 @@ class SolvitaskJob(models.Model):
             vals = {'stage_id': STARTED_STAGE}
             if not job.scheduled_date:
                 vals['scheduled_date'] = fields.Datetime.now()
-        job.write(vals)
+            job.write(vals)
 
     def action_mark_scheduled(self):
         for job in self:
@@ -270,7 +270,7 @@ class SolvitaskJob(models.Model):
                     raise ValidationError(
                         "This job has alredy started. Only a manager can cancel it."
                     )
-        job.stage_id = CANCELED_STAGE
+            job.stage_id = CANCELED_STAGE
 
     # Generate invoice:
     def action_generate_invoice(self):
