@@ -50,7 +50,7 @@
                         <button name="action_generate_invoice"
                                 string="Generate &amp; Send Invoice"
                                 type="object" class="oe_highlight"
-                                invisible="not stage_is_done"/>
+                                invisible="stage_id != 'stage_ready_invoice'"/>
                         <button name="action_cancel" string="Cancel Job"
                                 type="object"
                                 invisible="is_cancelled or stage_id == 'stage_paid'"
