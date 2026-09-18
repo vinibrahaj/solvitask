@@ -14,11 +14,6 @@ STAGE_SELECTION = [
     ('stage_canceled', 'Canceled')
 ]
 
-STAGE_LABELS = dict(STAGE_SELECTION)
-# this is a safety check whenever we may add a new stage
-assert set(ALLOWED_TRANSITIONS) == set(STAGE_LABELS), \
-    "ALLOWED_TRANSITIONS is out of sync with STAGE_SELECTION"
-
 # Which stages a job may move to, keyed by where it is now.
 # Empty set = terminal.
 ALLOWED_TRANSITIONS = {
@@ -30,6 +25,11 @@ ALLOWED_TRANSITIONS = {
     'stage_paid':           set(),
     'stage_canceled':       set(),
 }
+
+STAGE_LABELS = dict(STAGE_SELECTION)
+# this is a safety check whenever we may add a new stage
+assert set(ALLOWED_TRANSITIONS) == set(STAGE_LABELS), \
+    "ALLOWED_TRANSITIONS is out of sync with STAGE_SELECTION"
 
 # Single stages referenced by the action buttons and the cron.
 STARTED_STAGE = 'stage_in_progress'
