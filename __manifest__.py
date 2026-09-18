@@ -8,7 +8,7 @@
     'website': 'Website',
     'depends': ['base', 'web'],
     'assets': {
-        [
+        'web.assets_backend': [
             'solvitask/static/src/scss/solvitask.scss',
             'solvitask/static/src/js/wrapper.js'
         ]
