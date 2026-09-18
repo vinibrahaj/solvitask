@@ -53,7 +53,7 @@
                                 invisible="not stage_is_done"/>
                         <button name="action_cancel" string="Cancel Job"
                                 type="object"
-                                invisible="is_cancelled"
+                                invisible="is_cancelled or stage_id == 'stage_paid'"
                                 confirm="Cancel this job? If work has already started, only a manager can do this."/>
                         <!-- clickable status bar; moving here writes stage_id,
                              so RULE 1 &amp; 2 constraint applies to it too -->
