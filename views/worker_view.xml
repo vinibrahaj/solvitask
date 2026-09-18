@@ -28,7 +28,7 @@
                             </group>
                             <group string="Activity">
                                 <field namme="job_ids"/>
-                            <group>
+                            </group>
                         </group>
                         <group string="Skills">
                             <field name="service_ids" widget="many2many_tags"/>
