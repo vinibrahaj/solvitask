@@ -7,6 +7,12 @@
     'author': 'Author',
     'website': 'Website',
     'depends': ['base', 'web'],
+    'assets': {
+        [
+            'solvitask/static/src/scss/solvitask.css',
+            'solvitask/static/src/scss/wrapper.js'
+        ]
+    },
     'data': [
         'security/solvitask_security.xml',
         'security/ir.model.access.csv',
