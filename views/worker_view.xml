@@ -27,7 +27,7 @@
                                 <field name="payment_method"/>
                             </group>
                             <group string="Activity">
-                                <field namme="job_ids"/>
+                                <field name="job_ids"/>
                             </group>
                         </group>
                         <group string="Skills">
