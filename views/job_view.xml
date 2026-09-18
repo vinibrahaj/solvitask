@@ -46,7 +46,7 @@
                                 invisible="stage_is_started or is_cancelled"/>
                         <button name="action_mark_scheduled" string="Schedule"
                                 type="object" class="oe_highlight"
-                                invisible="stage_is_started or is cancelled"/>
+                                invisible="stage_is_started or is_cancelled"/>
                         <button name="action_generate_invoice"
                                 string="Generate &amp; Send Invoice"
                                 type="object" class="oe_highlight"
