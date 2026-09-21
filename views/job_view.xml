@@ -11,7 +11,7 @@
                         group_create="false" group_edit="false" groups_draggable="false"
                         records_draggable="true">
                     <field name="stage_id"/>
-                    <field name="worker_ids"/>
+                    <field name="plumber_ids"/>
                     <templates>
                         <t t-name="kanban-box">
                             <div class="oe_kanban_card oe_kanban_global_click">
@@ -20,9 +20,9 @@
                                         <field name="name"/>
                                     </strong>
                                     <div><field name="customer_id"/></div>
-                                    <div t-if="record.worker_ids.raw_value">
+                                    <div t-if="record.plumber_ids.raw_value">
                                         <i class="fa fa-user" role="img"/>
-                                        <field name="worker_ids"/>
+                                        <field name="plumber_ids"/>
                                     </div>
                                     <div><field name="total_price"/></div>
                                     <field name="priority" widget="priority"/>
@@ -92,7 +92,7 @@
                                 <field name="service_address"/>
                             </group>
                             <group string="Assignment">
-                                <field name="worker_ids"/>
+                                <field name="plumber_ids"/>
                                 <field name="scheduled_date"/>
                                 <field name="tool_ids" widget="many2many_tags"/>
                                 <field name="last_request_update" readonly="1"
@@ -145,7 +145,7 @@
                     <field name="name"/>
                     <field name="customer_id"/>
                     <field name="is_custom" widget="boolean_toggle"/>
-                    <field name="worker_ids"/>
+                    <field name="plumber_ids"/>
                     <field name="priority"/>
                     <field name="scheduled_date"/>
                     <field name="stage_id"/>
@@ -161,14 +161,14 @@
                 <search string="Job">
                     <field name="name"/>
                     <field name="customer_id"/>
-                    <field name="worker_ids"/>
+                    <field name="plumber_ids"/>
                     <filter string="Custom requests" name="filter_custom"
                             domain="[('is_custom', '=', True)]"/>
                     <filter string="Listed services" name="filter_listed"
                             domain="[('is_custom', '=', False)]"/>
                     <separator/>
                     <filter string="Unassigned" name="filter_unassigned"
-                            domain="[('worker_ids', '=', False)]"/>
+                            domain="[('plumber_ids', '=', False)]"/>
                     <filter string="Emergency" name="filter_emergency"
                             domain="[('priority', '=', 'emergency')]"/>
                     <separator/>
@@ -180,8 +180,8 @@
                     <group expand="0" string="Group By">
                         <filter string="Stage" name="group_by_stage"
                                 context="{'group_by': 'stage_id'}"/>
-                        <filter string="Plumber" name="group_by_worker"
-                                context="{'group_by': 'worker_ids'}"/>
+                        <filter string="Plumber" name="group_by_plumber"
+                                context="{'group_by': 'plumber_ids'}"/>
                     </group>
                 </search>
             </field>
