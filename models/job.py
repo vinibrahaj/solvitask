@@ -207,7 +207,7 @@ class SolvitaskJob(models.Model):
     - Canceled jpbs are deliberately exempt -- you must be able to cancel a
     - half-filled job 
     """
-    @api.constrains('stage_id', 'worker_ids', 'total_price')
+    @api.constrains('stage_id', 'plumber_ids', 'total_price')
     def _check_started_requirements(self):
         for job in self:
             if job.stage_id in STARTED_STAGES:
@@ -241,7 +241,7 @@ class SolvitaskJob(models.Model):
                     "the problem.")
 
     @api.constrains('plumber_ids')
-    def _check_worker_availability(self):
+    def _check_plumber_availability(self):
         for job in self:
             unavailable = job.plumber_ids.filtered(lambda p: not p.available)
             if unavailable:
