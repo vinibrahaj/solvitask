@@ -66,7 +66,7 @@
                     <field name="job_id"/>
                     <field name="source"/>
                     <field name="customer_id" optional="hide"/>
-                    <field name="worker_id" optional="hide"/>
+                    <field name="plumber_id" optional="hide"/>
                     <field name="state" widget="badge"
                            decoration-info="state == 'submitted'"
                            decoration-success="state == 'approved'"
@@ -83,7 +83,7 @@
                     <field name="name"/>
                     <field name="job_id"/>
                     <field name="customer_id"/>
-                    <field name="worker_id"/>
+                    <field name="plumber_id"/>
                     <filter string="New" name="f_draft"
                             domain="[('state', '=', 'draft')]"/>
                     <filter string="Submitted" name="f_submitted"
