@@ -71,9 +71,9 @@ class SolvitaskJob(models.Model):
     )
 
     # --- assignment / scheduling ---
-    worker_ids = fields.Many2many(
-        comodel_name='solvitask.worker',
-        relation='solvitask_job_worker_relation',
+    plumber_ids = fields.Many2many(
+        comodel_name='solvitask.plumber',
+        relation='solvitask_job_plumber_relation',
         string='Assigned Plumber'
     )
     scheduled_date = fields.Datetime(string='Scheduled Date')
@@ -171,8 +171,8 @@ class SolvitaskJob(models.Model):
             # labor. Only a custom job bills time.
             if job.is_custom:
                 job.labor_cost = sum(
-                    worker.hourly_rate * job.hours_worked
-                    for worker in job.worker_ids
+                    plumber.hourly_rate * job.hours_worked
+                    for plumber in job.worker_ids
                 )
             else:
                 job.labor_cost = 0.0
@@ -203,7 +203,7 @@ class SolvitaskJob(models.Model):
 
     """ 
     ==== RULE 1 & 2 =========================================================
-    - A job may not sit in a started stage without a worker and a price.
+    - A job may not sit in a started stage without a plumber and a price.
     - Canceled jpbs are deliberately exempt -- you must be able to cancel a
     - half-filled job 
     """
@@ -211,9 +211,9 @@ class SolvitaskJob(models.Model):
     def _check_started_requirements(self):
         for job in self:
             if job.stage_id in STARTED_STAGES:
-                if not job.worker_ids:                       # RULE 1
+                if not job.plumber_ids:                       # RULE 1
                     raise ValidationError(
-                        "Assign a worker before starting this job.")
+                        "Assign a Plumber before starting this job.")
                 if job.total_price <= 0:                    # RULE 2
                     raise ValidationError(
                         "Set an initial price before starting this job "
@@ -240,10 +240,10 @@ class SolvitaskJob(models.Model):
                     "Choose a service, or tick 'Custom request' and describe "
                     "the problem.")
 
-    @api.constrains('worker_ids')
+    @api.constrains('plumber_ids')
     def _check_worker_availability(self):
         for job in self:
-            unavailable = job.worker_ids.filtered(lambda w: not w.available)
+            unavailable = job.plumber_ids.filtered(lambda w: not w.available)
             if unavailable:
                 names = ", ".join(unavailable.mapped('name'))
                 raise ValidationError(
