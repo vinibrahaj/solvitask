@@ -9,8 +9,8 @@ class SolvitaskService(models.Model):
     # The catalog price for this kind of work. Copied onto a job as its
     # starting price (see job._compute_initial_price).
     unit_price = fields.Float(string='Unit Price', digits=(12, 2), required=True)
-    worker_count = fields.Integer(
-        string='Workers Required', default=1, required=True,
+    plumber_count = fields.Integer(
+        string='Plumbers Required', default=1, required=True,
         help='How many plumbers this kind of job normally needs.')
     description = fields.Text(string='Description')
 
