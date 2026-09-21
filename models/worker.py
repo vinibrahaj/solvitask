@@ -29,4 +29,9 @@ class SolvitaskWorker(models.Model):
         relation='solvitask_job_worker_relation',
         string='Assigned Jobs'
     )
+    request_ids = fields.One2many(
+        comodel_name='solvitask.requests',
+        inverse_name='worker_id',
+        string="Requests"
+    )
 
