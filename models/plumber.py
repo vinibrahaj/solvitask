@@ -2,7 +2,7 @@ from odoo import fields, models
 
 
 class SolvitaskWorker(models.Model):
-    _name = 'solvitask.worker'
+    _name = 'solvitask.plumber'
     _description = 'Worker / Plumber'
 
     name = fields.Char(string='Name', required=True)
