@@ -67,7 +67,7 @@
                                 invisible="not is_cancelled"/>
                         <widget name="web_ribbon" title="Paid"
                                 bg_color="text-bg-success"
-                                invisible="stage_id != 'stage_paid'"
+                                invisible="stage_id != 'stage_paid'"/>
                         <div class="oe_button_box" name="button_box">
                             <button type="object" name="action_view_requests"
                                     class="oe_stat_button" icon="fa-comments-o">
