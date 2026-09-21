@@ -1,6 +1,6 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_solvitask_customer,solvitask.customer,model_solvitask_customer,base.group_user,1,1,1,1
-access_solvitask_worker,solvitask.worker,model_solvitask_worker,base.group_user,1,1,1,1
+access_solvitask_plumber,solvitask.plumber,model_solvitask_plumber,base.group_user,1,1,1,1
 access_solvitask_service,solvitask.service,model_solvitask_service,base.group_user,1,1,1,1
 access_solvitask_tool,solvitask.tool,model_solvitask_tool,base.group_user,1,1,1,1
 access_solvitask_material,solvitask.material,model_solvitask_material,base.group_user,1,1,1,1
