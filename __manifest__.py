@@ -19,7 +19,7 @@
         'report/job_invoice_report.xml',
         'views/menus.xml',
         'views/customer_view.xml',
-        'views/worker_view.xml',
+        'views/plumber_view.xml',
         'views/service_view.xml',
         'views/tool_view.xml',
         'views/material_view.xml',
