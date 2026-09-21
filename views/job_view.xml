@@ -80,7 +80,6 @@
                         <div class="oe_title">
                             <h1><field name="name" readonly="1"/></h1>
                         </div>
-                        <field name="stage_canceled"/>
                         <group>
                             <group string="Request">
                                 <field name="customer_id"/>
