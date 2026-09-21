@@ -67,7 +67,7 @@ class SolvitaskRequests(models.Model):
         elif self.source == 'plumber':
             self.customer_id = False
 
-    @api.constrains('source', 'customer_id', 'worker_id')
+    @api.constrains('source', 'customer_id', 'plumber_id')
     def _check_source_party(self):
         for req in self:
             if req.source == 'customer' and not req.customer_id:
