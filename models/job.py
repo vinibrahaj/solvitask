@@ -163,7 +163,7 @@ class SolvitaskJob(models.Model):
         for job in self:
             job.initial_price = job.service_id.unit_price if job.service_id else 0.0
 
-    @api.depends('hours_worked', 'worker_ids.hourly_rate',
+    @api.depends('hours_worked', 'plumber_ids.hourly_rate',
                  'material_line_ids.subtotal', 'initial_price', 'is_custom')
     def _compute_costs(self):
         for job in self:
@@ -172,7 +172,7 @@ class SolvitaskJob(models.Model):
             if job.is_custom:
                 job.labor_cost = sum(
                     plumber.hourly_rate * job.hours_worked
-                    for plumber in job.worker_ids
+                    for plumber in job.plumber_ids
                 )
             else:
                 job.labor_cost = 0.0
