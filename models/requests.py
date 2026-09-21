@@ -34,7 +34,7 @@ class SolvitaskRequests(models.Model):
         required=True,
     )
     customer_id = fields.Many2one('solvitask.customer', string='Customer')
-    worker_id = fields.Many2one('solvitask.worker', string='Plumber')
+    plumber_id = fields.Many2one('solvitask.plumber', string='Plumber')
 
     # --- workflow ---
     state = fields.Selection(
@@ -63,7 +63,7 @@ class SolvitaskRequests(models.Model):
     @api.onchange('source')
     def _onchange_source(self):
         if self.source == 'customer':
-            self.worker_id = False
+            self.plumber_id = False
         elif self.source == 'plumber':
             self.customer_id = False
 
@@ -73,7 +73,7 @@ class SolvitaskRequests(models.Model):
             if req.source == 'customer' and not req.customer_id:
                 raise ValidationError(
                     "Select the customer this request comes from.")
-            if req.source == 'plumber' and not req.worker_id:
+            if req.source == 'plumber' and not req.plumber_id:
                 raise ValidationError(
                     "Select the plumber this request comes from.")
 
