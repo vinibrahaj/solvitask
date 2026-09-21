@@ -90,7 +90,8 @@ class SolvitaskJob(models.Model):
         selection=STAGE_SELECTION,
         string='Stage',
         default='stage_new',
-        required=True
+        required=True,
+        group_expand='_expand_stages'
     )
 
     is_cancelled = fields.Boolean(string='Cancelled', compute='_compute_is_cancelled', store=True)
@@ -130,6 +131,10 @@ class SolvitaskJob(models.Model):
     total_price = fields.Float(string='Total Price',
                                compute='_compute_costs', store=True, digits=(12, 2))
 
+
+    @api.model
+    def _expand_stages(self, states, domain, *args):
+        return [key for key, _label in STAGE_SELECTION]
 
     @api.depends('request_ids')
     def _compute_request_count(self):
