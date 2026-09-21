@@ -243,11 +243,11 @@ class SolvitaskJob(models.Model):
     @api.constrains('plumber_ids')
     def _check_worker_availability(self):
         for job in self:
-            unavailable = job.plumber_ids.filtered(lambda w: not w.available)
+            unavailable = job.plumber_ids.filtered(lambda p: not p.available)
             if unavailable:
                 names = ", ".join(unavailable.mapped('name'))
                 raise ValidationError(
-                    f"The following worker(s) are not available: {names}"
+                    f"The following plumber(s) are not available: {names}"
                 )
 
     # --- buttons ---
