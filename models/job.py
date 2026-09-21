@@ -94,20 +94,8 @@ class SolvitaskJob(models.Model):
         group_expand='_expand_stages'
     )
 
-    is_cancelled = fields.Boolean(string='Cancelled', compute='_compute_is_cancelled', store=True)
     stage_is_done = fields.Boolean(compute='_compute_stage_flags')
     stage_is_started = fields.Boolean(compute='_compute_stage_flags')
-
-    @api.depends('stage_id')
-    def _compute_stage_flags(self):
-        for job in self:
-            job.stage_is_started = job.stage_id in STARTED_STAGES
-            job.stage_is_done = job.stage_id in DONE_STAGES
-
-    @api.depends('stage_id')
-    def _compute_is_cancelled(self):
-        for job in self:
-            job.is_cancelled = job.stage_id == CANCELED_STAGE
 
     # --- requests raised against this job (by a customer or a plumber) ---
     request_ids = fields.One2many(
@@ -135,6 +123,12 @@ class SolvitaskJob(models.Model):
     @api.model
     def _expand_stages(self, states, domain, *args):
         return [key for key, _label in STAGE_SELECTION]
+
+    @api.depends('stage_id')
+    def _compute_stage_flags(self):
+        for job in self:
+            job.stage_is_started = job.stage_id in STARTED_STAGES
+            job.stage_is_done = job.stage_id in DONE_STAGES
 
     @api.depends('request_ids')
     def _compute_request_count(self):
