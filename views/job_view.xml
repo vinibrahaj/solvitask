@@ -43,17 +43,17 @@
                         <!-- RULE 3: only shown once the stage is a "finished" one -->
                         <button name="action_mark_started" string="Start Now"
                                 type="object" class="oe_highlight"
-                                invisible="stage_is_started or is_cancelled"/>
+                                invisible="stage_id not in ('stage_new', 'stage_scheduled')"/>
                         <button name="action_mark_scheduled" string="Schedule"
                                 type="object" class="oe_highlight"
-                                invisible="stage_is_started or is_cancelled"/>
+                                invisible="stage_id not in ('stage_new', 'stage_scheduled')"/>
                         <button name="action_generate_invoice"
                                 string="Generate &amp; Send Invoice"
                                 type="object" class="oe_highlight"
                                 invisible="stage_id not in ('stage_ready_invoice', 'stage_invoiced', 'stage_paid')"/>
                         <button name="action_cancel" string="Cancel Job"
                                 type="object"
-                                invisible="is_cancelled or stage_id == 'stage_paid'"
+                                invisible="stage_id in ('stage_canceled', 'stage_paid')"
                                 confirm="Cancel this job? If work has already started, only a manager can do this."/>
                         <!-- clickable status bar; moving here writes stage_id,
                              so RULE 1 &amp; 2 constraint applies to it too -->
@@ -64,7 +64,7 @@
                     <sheet>
                         <widget name="web_ribbon" title="Canceled"
                                 bg_color="text-bg-danger"
-                                invisible="not is_cancelled"/>
+                                invisible="stage_id != 'stage_canceled'"/>
                         <widget name="web_ribbon" title="Paid"
                                 bg_color="text-bg-success"
                                 invisible="stage_id != 'stage_paid'"/>
