@@ -16,18 +16,20 @@
                             </h1>
                         </div>
                         <group>
-                            <group string="Contact">
+                            <group string="Contact Info">
                                 <field name="phone"/>
                                 <field name="email"/>
                                 <field name="address"/>
                             </group>
-                            <group string="Work">
+                            <group string="Plumber Details">
                                 <field name="available"/>
                                 <field name="hourly_rate"/>
                                 <field name="payment_method"/>
                             </group>
                             <group string="Activity">
                                 <field name="job_ids"/>
+                            </group>
+                            <group>
                                 <field name="request_ids"/>
                             </group>
                         </group>
