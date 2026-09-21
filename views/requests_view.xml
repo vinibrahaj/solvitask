@@ -37,7 +37,7 @@
                                 <field name="customer_id"
                                        invisible="source != 'customer'"
                                        required="source == 'customer'"/>
-                                <field name="worker_id"
+                                <field name="plumber_id"
                                        invisible="source != 'plumber'"
                                        required="source == 'plumber'"/>
                             </group>
