@@ -29,7 +29,7 @@
                             <group string="Activity">
                                 <field name="job_ids"/>
                             </group>
-                            <group>
+                            <group string="Requests">
                                 <field name="request_ids"/>
                             </group>
                         </group>
