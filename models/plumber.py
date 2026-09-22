@@ -26,7 +26,7 @@ class SolvitaskWorker(models.Model):
 
     job_ids = fields.Many2many(
         'solvitask.job',
-        relation='solvitask_job_worker_relation',
+        relation='solvitask_job_plumber_relation',
         string='Assigned Jobs'
     )
     request_ids = fields.One2many(
