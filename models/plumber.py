@@ -19,7 +19,7 @@ class SolvitaskWorker(models.Model):
     phone = fields.Char(string='Phone', required=True)
     email = fields.Char(string='Email')
     address = fields.Char(string='Address', required=True)
-    Balance = fields.Float(string="Balance")
+    balance = fields.Float(string="Balance")
 
     slot_ids = fields.One2many(
         comodel_name='solvitask.plumber.slot',
