@@ -56,7 +56,10 @@ class SolvitaskJob(models.Model):
         string='Service'
     )
     is_custom = fields.Boolean(string='Custom Request')
-    description = fields.Text(string='Problem Description')
+    description = fields.Text(
+        string='Problem Description',
+        required=True
+    )
     problem_photo = fields.Image(string='Problem Photo')
     service_address = fields.Char(string='Service Address')
     
@@ -80,7 +83,10 @@ class SolvitaskJob(models.Model):
 
     # --- work done ---
     material_line_ids = fields.One2many(
-        'solvitask.job.material', 'job_id', string='Materials Used')
+        comodel_name='solvitask.job.material',
+        inverse_name='job_id',
+        string='Materials Used'
+    )
     work_notes = fields.Text(string='Work Notes')
     hours_worked = fields.Float(string='Hours Worked')
 
@@ -95,7 +101,10 @@ class SolvitaskJob(models.Model):
 
     # --- requests raised against this job (by a customer or a plumber) ---
     request_ids = fields.One2many(
-        'solvitask.requests', 'job_id', string='Requests')
+        comodel_name='solvitask.requests',
+        inverse_name='job_id',
+        string='Requests'
+    )
     request_count = fields.Integer(
         string='Request Count', compute='_compute_request_count')
     last_request_update = fields.Datetime(
@@ -140,7 +149,7 @@ class SolvitaskJob(models.Model):
             },
         }
 
-    # ---- computes (the transforms) ----
+    # ---- computes th name of the job ----
     @api.depends('service_id', 'customer_id')
     def _compute_name(self):
         for job in self:
@@ -151,7 +160,7 @@ class SolvitaskJob(models.Model):
     @api.depends('service_id')
     def _compute_initial_price(self):
         for job in self:
-            job.initial_price = job.service_id.unit_price if job.service_id else 0.0
+            job.initial_price = job.service_id.unit_price
 
     @api.depends('hours_worked', 'plumber_ids.hourly_rate',
                  'material_line_ids.subtotal', 'initial_price', 'is_custom')
