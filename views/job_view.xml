@@ -75,8 +75,6 @@
                                        string="Requests"/>
                             </button>
                         </div>
-                        <field name="stage_is_done" invisible="1"/>
-                        <field name="stage_is_started" invisible="1"/>
                         <div class="oe_title">
                             <h1><field name="name" readonly="1"/></h1>
                         </div>
