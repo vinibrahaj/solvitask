@@ -27,7 +27,7 @@
                             </group>
                         </group>
                         <group string="Availability">
-                            <field name="slot_ids" nolabel="1" colspan="2">
+                            <field name="slot_ids" nolabel="1">
                                 <tree editable="bottom">
                                     <field name="day_of_week"/>
                                     <field name="hour_from" widget="float_time"/>
