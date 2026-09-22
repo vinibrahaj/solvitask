@@ -43,11 +43,11 @@
                             </group>
                         </group>
                         <group string="Details">
-                            <field name="description" nolabel="1"
+                            <field name="description" nolabel="1" colspan="2"
                                    placeholder="Describe what is being requested..."/>
                         </group>
                         <group string="Manager Note">
-                            <field name="manager_note" nolabel="1"
+                            <field name="manager_note" nolabel="1" colspan="2"
                                    placeholder="What was decided / changed on the job..."/>
                         </group>
                     </sheet>
