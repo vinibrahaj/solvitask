@@ -242,12 +242,15 @@ class SolvitaskJob(models.Model):
     @api.constrains('plumber_ids')
     def _check_plumber_availability(self):
         for job in self:
-            unavailable = job.plumber_ids.filtered(lambda p: not p.available)
+            if not job.scheduled_date:
+                continue
+            unavailable = job.plumber_ids.filtered(
+                lambda p: not p.is_available_at(job.scheduled_date))
             if unavailable:
                 names = ", ".join(unavailable.mapped('name'))
+                local = fields.Datetime.context_timestamp(job, job.scheduled_date)
                 raise ValidationError(
-                    f"The following plumber(s) are not available: {names}"
-                )
+                    f"Not available on {local:%A %d/%m at %H:%M}: {names}")
 
     # --- buttons ---
     def action_mark_started(self):
