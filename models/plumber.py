@@ -21,18 +21,21 @@ class SolvitaskWorker(models.Model):
     address = fields.Char(string='Address')
 
     slot_ids = fields.One2many(
-        comodel_name='solvitask.plumber.slot', 'plumber_id',
+        comodel_name='solvitask.plumber.slot',
+        inverse_name='plumber_id',
         string='Weekly Availability'
     )
 
     hourly_rate = fields.Float(string='Hourly Rate', digits=(12, 2))
     payment_method = fields.Selection(
         string='Payment Method',
-        selection=[('cash', 'Cash'), ('bank', 'Bank Transfer')],
+        selection=[('cash', 'Cash'), ('bank', 'Bank Transfer')]
     )
 
     # Many workers <-> many services. Creates a hidden link table automatically.
-    service_ids = fields.Many2many('solvitask.service', string='Skills / Services')
+    service_ids = fields.Many2many(
+        comodel_name='solvitask.service',
+        string='Skills / Services')
 
     job_ids = fields.Many2many(
         'solvitask.job',
@@ -68,8 +71,10 @@ class SolvitaskPlumberSlot(models.Model):
     _order = 'day_of_week, hour_from'
 
     plumber_id = fields.Many2one(
-        'solvitask.plumber', string='Plumber',
-        required=True, ondelete='cascade')
+        comodel_name='solvitask.plumber',
+        string='Plumber',
+        required=True, ondelete='cascade'
+    )
     day_of_week = fields.Selection(WEEKDAYS, string='Day', required=True)
     hour_from = fields.Float(string='From', required=True)
     hour_to = fields.Float(string='To', required=True)
