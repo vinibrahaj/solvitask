@@ -21,10 +21,6 @@
                                 <field name="address"/>
                                 <field name="birthday"/>
                             </group>
-                            <group string="Activity">
-                                <field name="job_ids"/>
-                                <field name="request_ids"/>
-                            </group>
                         </group>
                         <notebook>
                             <page string="Jobs">
@@ -34,6 +30,15 @@
                                         <field name="scheduled_date"/>
                                         <field name="stage_id"/>
                                         <field name="total_price"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string="Requests">
+                                <field name="request_ids">
+                                    <tree>
+                                        <field name="name"/>
+                                        <field name="request_type"/>
+                                        <field name="state"/>
                                     </tree>
                                 </field>
                             </page>
