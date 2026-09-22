@@ -5,7 +5,7 @@
             <field name="name">solvitask.customer.form</field>
             <field name="model">solvitask.customer</field>
             <field name="arch" type="xml">
-                <form string="Customer">
+                <form string="Customer Details">
                     <sheet>
                         <div class="oe_title">
                             <label for="name"/>
@@ -15,7 +15,7 @@
                             </h1>
                         </div>
                         <group>
-                            <group string="Contact">
+                            <group string="Contact Info">
                                 <field name="phone"/>
                                 <field name="email"/>
                                 <field name="address"/>
