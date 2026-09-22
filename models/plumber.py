@@ -16,9 +16,10 @@ class SolvitaskWorker(models.Model):
 
     name = fields.Char(string='Name', required=True)
     surname = fields.Char(string='Surname')
-    phone = fields.Char(string='Phone')
+    phone = fields.Char(string='Phone', required=True)
     email = fields.Char(string='Email')
-    address = fields.Char(string='Address')
+    address = fields.Char(string='Address', required=True)
+    Balance = fields.Float(string="Balance")
 
     slot_ids = fields.One2many(
         comodel_name='solvitask.plumber.slot',
@@ -31,6 +32,7 @@ class SolvitaskWorker(models.Model):
         string='Payment Method',
         selection=[('cash', 'Cash'), ('bank', 'Bank Transfer')]
     )
+    iban = fields.Char(string="IBAN", size=36)
 
     # Many workers <-> many services. Creates a hidden link table automatically.
     service_ids = fields.Many2many(
