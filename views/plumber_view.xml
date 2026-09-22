@@ -22,8 +22,11 @@
                                 <field name="address"/>
                             </group>
                             <group string="Plumber Details">
+                                <field name="balance"/>
                                 <field name="hourly_rate"/>
                                 <field name="payment_method"/>
+                                <field name="iban"
+                                       invisible="payment_method != 'bank'"/>
                             </group>
                         </group>
                         <group string="Availability">
