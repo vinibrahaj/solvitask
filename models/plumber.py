@@ -31,7 +31,7 @@ class SolvitaskWorker(models.Model):
     )
     request_ids = fields.One2many(
         comodel_name='solvitask.requests',
-        inverse_name='worker_id',
+        inverse_name='plumber_id',
         string="Requests"
     )
 
