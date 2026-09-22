@@ -22,20 +22,43 @@
                                 <field name="address"/>
                             </group>
                             <group string="Plumber Details">
-                                <field name="available"/>
                                 <field name="hourly_rate"/>
                                 <field name="payment_method"/>
                             </group>
-                            <group string="Activity">
-                                <field name="job_ids"/>
-                            </group>
-                            <group string="Requests">
-                                <field name="request_ids"/>
-                            </group>
+                        </group>
+                        <group string="Availability">
+                            <field name="slot_ids" nolabel="1" colspan="2">
+                                <tree editable="bottom">
+                                    <field name="day_of_week"/>
+                                    <field name="hour_from" widget="float_time"/>
+                                    <field name="hour_to" widget="float_time"/>
+                                </tree>
+                            </field>
                         </group>
                         <group string="Skills">
                             <field name="service_ids" widget="many2many_tags"/>
                         </group>
+                        <notebook>
+                            <page string="Jobs">
+                                <field name="job_ids">
+                                    <tree>
+                                        <field name="name"/>
+                                        <field name="scheduled_date"/>
+                                        <field name="stage_id"/>
+                                        <field name="total_price"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string="Requests">
+                                <field name="request_ids">
+                                    <tree>
+                                        <field name="name"/>
+                                        <field name="request_type"/>
+                                        <field name="state"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
                     </sheet>
                 </form>
             </field>
@@ -49,7 +72,6 @@
                     <field name="name"/>
                     <field name="surname"/>
                     <field name="phone"/>
-                    <field name="available"/>
                     <field name="hourly_rate"/>
                 </tree>
             </field>
@@ -62,8 +84,6 @@
                 <search string="Plumber">
                     <field name="name"/>
                     <field name="surname"/>
-                    <filter string="Available" name="filter_available"
-                            domain="[('available', '=', True)]"/>
                 </search>
             </field>
         </record>
