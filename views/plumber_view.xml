@@ -33,8 +33,8 @@
                             <field name="slot_ids" nolabel="1" colspan="2">
                                 <tree editable="bottom">
                                     <field name="day_of_week"/>
-                                    <field name="hour_from" widget="float_time"/>
-                                    <field name="hour_to" widget="float_time"/>
+                                    <field name="hour_from"/>
+                                    <field name="hour_to"/>
                                 </tree>
                             </field>
                         </group>
