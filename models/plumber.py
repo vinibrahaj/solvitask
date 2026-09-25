@@ -66,9 +66,9 @@ class SolvitaskWorker(models.Model):
         # Slots are entered in local time; the database stores UTC.
         local = fields.Datetime.context_timestamp(self, dt)
         day = str(local.weekday())                 # Monday = '0'
-        hour = local.hour + local.minute / 60.0
+        now = f'{local.hour:02d}:{local.minute:02d}'
         return any(
-            slot.day_of_week == day and slot.hour_from <= hour < slot.hour_to
+            slot.day_of_week == day and slot.hour_from <= now < slot.hour_to
             for slot in self.slot_ids
         )
 
