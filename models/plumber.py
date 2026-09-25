@@ -9,6 +9,11 @@ WEEKDAYS = [
     ('6', 'Sunday')
 ]
 
+PLUMBER_HOURS = [
+    (f'{h:02d}:{m:02d}', f'{h:02d}:{m:02d}')
+    for h in range(24) for m in (0, 30)
+]
+
 
 class SolvitaskWorker(models.Model):
     _name = 'solvitask.plumber'
@@ -78,16 +83,17 @@ class SolvitaskPlumberSlot(models.Model):
         required=True, ondelete='cascade'
     )
     day_of_week = fields.Selection(WEEKDAYS, string='Day', required=True)
-    hour_from = fields.Float(string='From', required=True)
-    hour_to = fields.Float(string='To', required=True)
+    hour_from = fields.Selection(PLUMBER_HOURS, string='From', required=True,
+                                default='08:00')
+    hour_to = fields.Selection(PLUMBER_HOURS, string='To', required=True,
+                              default='16:00')
 
     @api.constrains('hour_from', 'hour_to')
     def _check_hours(self):
         for slot in self:
-            if not 0 <= slot.hour_from < slot.hour_to <= 24:
+            if not 0 <= slot.hour_from < slot.hour_to:
                 raise ValidationError(
-                    "A time slot must start before it ends, "
-                    "between 00:00 and 24:00.")
+                    "A time slot must start before it ends")
 
     @api.constrains('plumber_id', 'day_of_week', 'hour_from', 'hour_to')
     def _check_overlap(self):
@@ -102,5 +108,3 @@ class SolvitaskPlumberSlot(models.Model):
             if overlapping:
                 raise ValidationError(
                     "This slot overlaps another slot on the same day.")
-
-
