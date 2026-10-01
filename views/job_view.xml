@@ -92,6 +92,7 @@
                             <group string="Assignment">
                                 <field name="plumber_ids"/>
                                 <field name="scheduled_date"/>
+                                <field name="finished_date"/>
                                 <field name="tool_ids" widget="many2many_tags"/>
                                 <field name="last_request_update" readonly="1"
                                        invisible="not last_request_update"/>

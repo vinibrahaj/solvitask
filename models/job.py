@@ -78,7 +78,11 @@ class SolvitaskJob(models.Model):
         relation='solvitask_job_plumber_relation',
         string='Assigned Plumber'
     )
-    scheduled_date = fields.Datetime(string='Scheduled Date')
+    scheduled_date = fields.Datetime(string='Scheduled Date:')
+    finished_date = fields.Datetime(
+        string='Finished Date:',
+        readonly=True
+    )
     tool_ids = fields.Many2many('solvitask.tool', string='Required Tools')
 
     # --- work done ---
@@ -198,6 +202,8 @@ class SolvitaskJob(models.Model):
                         raise UserError(
                             "Set a scheduled date in the future before "
                             "moving this job to Scheduled.")
+                if new_stage == "stage_ready_invoice":
+                    vals['finished_date'] = fields.Datetime.now()
         return super().write(vals)
 
     """ 
