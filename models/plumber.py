@@ -18,13 +18,22 @@ PLUMBER_HOURS = [
 class SolvitaskWorker(models.Model):
     _name = 'solvitask.plumber'
     _description = 'Worker / Plumber'
+    _inherit = ['solvitask.whatsapp.mixin']
 
     name = fields.Char(string='Name', required=True)
     surname = fields.Char(string='Surname')
     phone = fields.Char(string='Phone', required=True)
     email = fields.Char(string='Email')
-    address = fields.Char(string='Address', required=True)
-    balance = fields.Float(string="Balance")
+    address = fields.Char(
+        string='Address',
+        required=True,
+        groups='!solvitask.group_solvitask_customer'
+    )
+    balance = fields.Float(
+        string="Balance",
+        readonly=True,
+        groups='!solvitask.group_solvitask_customer'
+    )
 
     slot_ids = fields.One2many(
         comodel_name='solvitask.plumber.slot',
@@ -32,13 +41,27 @@ class SolvitaskWorker(models.Model):
         string='Weekly Availability'
     )
 
-    hourly_rate = fields.Float(string='Hourly Rate', digits=(12, 2))
+    hourly_rate = fields.Float(
+        string='Hourly Rate', digits=(12, 2)
+    )
     payment_method = fields.Selection(
         string='Payment Method',
-        selection=[('cash', 'Cash'), ('bank', 'Bank Transfer')]
+        selection=[('cash', 'Cash'), ('bank', 'Bank Transfer')],
+        groups='!solvitask.group_solvitask_customer'
     )
-    iban = fields.Char(string="IBAN", size=36)
+    iban = fields.Char(
+        string="IBAN",
+        size=36,
+        groups='!solvitask.group_solvitask_customer'
+    )
 
+    user_id = fields.Many2one(
+        comodel_name='res.users',
+        string='Related User',
+        ondelete='set null',
+        groups='solvitask.group_solvitask_plumber',
+        help='Login belonging to this plumber.'
+    )
     # Many workers <-> many services. Creates a hidden link table automatically.
     service_ids = fields.Many2many(
         comodel_name='solvitask.service',
@@ -61,6 +84,8 @@ class SolvitaskWorker(models.Model):
         A plumber with no slots at all is treated as unrestricted.
         """
         self.ensure_one()
+
+        plumber = self.sudo()
         if not self.slot_ids:
             return True
         # Slots are entered in local time; the database stores UTC.
