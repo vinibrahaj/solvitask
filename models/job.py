@@ -51,6 +51,18 @@ class SolvitaskJob(models.Model):
         string='Customer',
         required=True
     )
+    plumber_ids = fields.Many2many(
+        comodel_name='solvitask.plumber',
+        relation='solvitask_job_plumber_relation',
+        string='Assigned Plumber'
+    )
+    # this is what customers see:
+    customer_plumber_ids = fields.Many2many(
+        comodel_name='solvitask.plumber',
+        string='Working on this job',
+        compute='_compute_customer_plumber_ids',
+    )
+    
     service_id = fields.Many2one(
         comodel_name='solvitask.service',
         string='Service'
@@ -73,11 +85,6 @@ class SolvitaskJob(models.Model):
     )
 
     # --- assignment / scheduling ---
-    plumber_ids = fields.Many2many(
-        comodel_name='solvitask.plumber',
-        relation='solvitask_job_plumber_relation',
-        string='Assigned Plumber'
-    )
     scheduled_date = fields.Datetime(string='Scheduled Date:')
     finished_date = fields.Datetime(
         string='Finished Date:',
@@ -138,6 +145,15 @@ class SolvitaskJob(models.Model):
         for job in self:
             job.request_count = len(job.request_ids)
 
+    @api.depends('plumber_ids', 'stage_id')
+    def _compute_customer_plumber_ids(self):
+        empty = self.env['solvitask.plumber']
+        for job in self:
+            job.customer_plumber_ids = (
+                empty if job.stage_id in PLUMBERS_HIDDEN_FROM_CUSTOMER
+                else job.plumber_ids
+            )
+
     def action_view_requests(self):
         self.ensure_one()
         return {
@@ -181,6 +197,17 @@ class SolvitaskJob(models.Model):
                 job.labor_cost = 0.0
             job.material_cost = sum(job.material_line_ids.mapped('subtotal'))
             job.total_price = job.initial_price + job.labor_cost + job.material_cost
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            stage = vals.get('stage_id')
+            if stage and stage != 'stage_new':
+                raise UserError(
+                    "A new job must be created in '%s'. Move it along the "
+                    "pipeline afterwards." % STAGE_LABELS['stage_new'])
+            vals['stage_id'] = 'stage_new'
+        return super().create(vals_list)
 
     # stage movement logic
     def write(self, vals):
