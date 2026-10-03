@@ -16,10 +16,23 @@
                         </div>
                         <group>
                             <group string="Contact Info">
-                                <field name="phone"/>
-                                <field name="email"/>
+                                <label for="phone"/>
+                                <div class="o_row">
+                                    <field name="phone" class="oe_inline"/>
+                                    <button name="action_open_whatsapp"
+                                            type="object"
+                                            icon="fa-whatsapp"
+                                            title="Message on WhatsApp"
+                                            class="btn-link text-success"
+                                            invisible="not phone"/>
+                                </div>
+                                <field name="email" widget="email"/>
                                 <field name="address"/>
                                 <field name="birthday"/>
+                            </group>
+                            <group string="Account"
+                                   groups="solvitask.group_solvitask_manager">
+                                <field name="user_id"/>
                             </group>
                         </group>
                         <notebook>
@@ -56,6 +69,9 @@
                     <field name="name"/>
                     <field name="surname"/>
                     <field name="phone"/>
+                    <button name="action_open_whatsapp" type="object"
+                            icon="fa-whatsapp" title="Message on WhatsApp"
+                            class="text-success"/>
                     <field name="email"/>
                 </tree>
             </field>
@@ -82,7 +98,8 @@
         </record>
 
         <menuitem name="Customers" id="customer_menu" parent="solvitask_root"
-                  action="customer_act_window" sequence="10"/>
+                  action="customer_act_window" sequence="10"
+                  groups="solvitask.group_solvitask_plumber,solvitask.group_solvitask_manager"/>
 
     </data>
 </odoo>
