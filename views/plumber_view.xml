@@ -16,17 +16,33 @@
                             </h1>
                         </div>
                         <group>
-                            <group string="Contact Info">
-                                <field name="phone"/>
-                                <field name="email"/>
-                                <field name="address"/>
+                            <!-- Everything a customer is allowed to see:
+                                 name, surname, phone, skills. -->
+                            <group string="Contact">
+                                <label for="phone"/>
+                                <div class="o_row">
+                                    <field name="phone" class="oe_inline"/>
+                                    <button name="action_open_whatsapp"
+                                            type="object"
+                                            icon="fa-whatsapp"
+                                            title="Message on WhatsApp"
+                                            class="btn-link text-success"
+                                            invisible="not phone"/>
+                                </div>
+                                <field name="email" widget="email"
+                                       groups="solvitask.group_solvitask_plumber"/>
+                                <field name="address"
+                                       groups="solvitask.group_solvitask_plumber"/>
                             </group>
-                            <group string="Plumber Details">
+                            <group string="Plumber Details"
+                                   groups="solvitask.group_solvitask_plumber">
                                 <field name="balance"/>
                                 <field name="hourly_rate"/>
                                 <field name="payment_method"/>
                                 <field name="iban"
                                        invisible="payment_method != 'bank'"/>
+                                <field name="user_id"
+                                       groups="solvitask.group_solvitask_manager"/>
                             </group>
                         </group>
                         <group string="Availability">
@@ -41,7 +57,7 @@
                         <group string="Skills">
                             <field name="service_ids" widget="many2many_tags"/>
                         </group>
-                        <notebook>
+                        <notebook groups="solvitask.group_solvitask_plumber">
                             <page string="Jobs">
                                 <field name="job_ids">
                                     <tree>
@@ -75,7 +91,12 @@
                     <field name="name"/>
                     <field name="surname"/>
                     <field name="phone"/>
-                    <field name="hourly_rate"/>
+                    <button name="action_open_whatsapp" type="object"
+                            icon="fa-whatsapp" title="Message on WhatsApp"
+                            class="text-success"/>
+                    <field name="service_ids" widget="many2many_tags"/>
+                    <field name="hourly_rate"
+                           groups="solvitask.group_solvitask_plumber"/>
                 </tree>
             </field>
         </record>
@@ -99,7 +120,8 @@
         </record>
 
         <menuitem name="Plumbers" id="plumber_menu" parent="solvitask_root"
-                  action="plumber_act_window" sequence="20"/>
+                  action="plumber_act_window" sequence="20"
+                  groups="solvitask.group_solvitask_plumber,solvitask.group_solvitask_manager"/>
 
     </data>
 </odoo>
