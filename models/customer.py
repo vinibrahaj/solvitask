@@ -12,6 +12,12 @@ class SolvitaskCustomer(models.Model):
     address = fields.Char(string='Address')
     birthday = fields.Date(string='Birthday')
 
+    user_id = fields.Many2one(
+        comodel_name='res.users',
+        string='Related User',
+        ondelete='set null',
+        help='Portal/internal login belonging to this customer.')
+
     job_ids = fields.One2many(
         comodel_name='solvitask.job',
         inverse_name='customer_id',
