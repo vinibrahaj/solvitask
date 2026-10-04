@@ -98,8 +98,7 @@
         </record>
 
         <menuitem name="Customers" id="customer_menu" parent="solvitask_root"
-                  action="customer_act_window" sequence="10"
-                  groups="solvitask.group_solvitask_plumber,solvitask.group_solvitask_manager"/>
+                  action="customer_act_window" sequence="10"/>
 
     </data>
 </odoo>
