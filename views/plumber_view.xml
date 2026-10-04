@@ -44,8 +44,7 @@
                             </group>
                         </group>
                         <group string="Availability">
-                            <field name="slot_ids" nolabel="1" colspan="2" readonly="1"
-                                   groups="!solvitask.group_solvitask_manager">
+                            <field name="slot_ids" nolabel="1" colspan="2" readonly="1"">
                                 <tree create='false' delete="false">
                                     <field name="day_of_week"/>
                                     <field name="day_off" widget="boolean_toggle"/>
@@ -67,7 +66,7 @@
                         <group string="Skills">
                             <field name="service_ids" widget="many2many_tags"/>
                         </group>
-                        <notebook groups="solvitask.group_solvitask_plumber">
+                        <notebook groups="!solvitask.group_solvitask_customer">
                             <page string="Jobs">
                                 <field name="job_ids">
                                     <tree>
