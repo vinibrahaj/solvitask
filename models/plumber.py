@@ -57,7 +57,7 @@ class SolvitaskPlumber(models.Model):
         comodel_name='res.users',
         string='Related User',
         ondelete='set null',
-        groups='solvitask.group_solvitask_plumber',
+        groups='solvitask.group_solvitask_manager',
         help='Login belonging to this plumber.'
     )
     # Many workers <-> many services. Creates a hidden link table automatically.
@@ -79,8 +79,7 @@ class SolvitaskPlumber(models.Model):
     request_ids = fields.One2many(
         comodel_name='solvitask.requests',
         inverse_name='plumber_id',
-        string="Requests",
-        groups='!solvitask.group_solvitask_customer'
+        string="Requests"
     )
 
     @api.model_create_multi
