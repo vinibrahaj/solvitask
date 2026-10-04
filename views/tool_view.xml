@@ -21,7 +21,8 @@
         </record>
 
         <menuitem name="Tools" id="tool_menu" parent="solvitask_root"
-                  action="tool_act_window" sequence="40"/>
+                  action="tool_act_window" sequence="40"
+                  groups="solvitask.group_solvitask_manager"/>
 
     </data>
 </odoo>
