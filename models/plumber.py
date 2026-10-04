@@ -2,28 +2,39 @@ from odoo import fields, models, api
 from odoo.exceptions import ValidationError
 
 
-WEEKDAYS = [
-    ('0', 'Monday'), ('1', 'Tuesday'),
-    ('2', 'Wednesday'), ('3', 'Thursday'),
-    ('4', 'Friday'), ('5', 'Saturday'),
-    ('6', 'Sunday')
-]
-
 PLUMBER_HOURS = [
     (f'{h:02d}:{m:02d}', f'{h:02d}:{m:02d}')
     for h in range(24) for m in (0, 30)
 ]
 
 
-class SolvitaskWorker(models.Model):
+class SolvitaskWeekdays(models.model):
+    _name = 'solvitask.weekday'
+    _description = 'Week Day'
+    _order = 'sequence'
+ 
+    name = fields.Char(string='Day', required=True)
+    # 0 = Monday, so it lines up with python's date.weekday()
+    sequence = fields.Integer(string='Sequence', required=True)
+ 
+    _sql_constraints = [
+        ('uniq_sequence', 'unique(sequence)',
+         'Two week days cannot share the same sequence.'),
+    ]
+
+
+class SolvitaskPlumber(models.Model):
     _name = 'solvitask.plumber'
     _description = 'Worker / Plumber'
     _inherit = ['solvitask.whatsapp.mixin']
 
+    # visitble to everyone
     name = fields.Char(string='Name', required=True)
     surname = fields.Char(string='Surname')
     phone = fields.Char(string='Phone', required=True)
-    email = fields.Char(string='Email')
+
+    # invisible for customers
+    email = fields.Char(string='Email', groups='!solvitask.group_solvitask_customer')
     address = fields.Char(
         string='Address',
         required=True,
@@ -86,7 +97,7 @@ class SolvitaskWorker(models.Model):
         self.ensure_one()
 
         plumber = self.sudo()
-        if not self.slot_ids:
+        if not plumber.slot_ids:
             return True
         # Slots are entered in local time; the database stores UTC.
         local = fields.Datetime.context_timestamp(self, dt)
@@ -116,20 +127,6 @@ class SolvitaskPlumberSlot(models.Model):
     @api.constrains('hour_from', 'hour_to')
     def _check_hours(self):
         for slot in self:
-            if not 0 <= slot.hour_from < slot.hour_to:
+            if slot.hour_from >= slot.hour_to:
                 raise ValidationError(
                     "A time slot must start before it ends")
-
-    @api.constrains('plumber_id', 'day_of_week', 'hour_from', 'hour_to')
-    def _check_overlap(self):
-        for slot in self:
-            overlapping = self.search_count([
-                ('id', '!=', slot.id),
-                ('plumber_id', '=', slot.plumber_id.id),
-                ('day_of_week', '=', slot.day_of_week),
-                ('hour_from', '<', slot.hour_to),
-                ('hour_to', '>', slot.hour_from),
-            ])
-            if overlapping:
-                raise ValidationError(
-                    "This slot overlaps another slot on the same day.")
