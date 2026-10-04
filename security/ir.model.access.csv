@@ -20,6 +20,6 @@ access_job_manager,job.manager,model_solvitask_job,group_solvitask_manager,1,1,1
 access_job_material_customer,job.material.customer,model_solvitask_job_material,group_solvitask_customer,1,0,0,0
 access_job_material_plumber,job.material.plumber,model_solvitask_job_material,group_solvitask_plumber,1,1,1,1
 access_job_material_manager,job.material.manager,model_solvitask_job_material,group_solvitask_manager,1,1,1,1
-access_requests_customer,requests.customer,model_solvitask_requests,group_solvitask_customer,1,1,1,0
-access_requests_plumber,requests.plumber,model_solvitask_requests,group_solvitask_plumber,1,1,1,0
+access_requests_customer,requests.customer,model_solvitask_requests,group_solvitask_customer,1,1,1,1
+access_requests_plumber,requests.plumber,model_solvitask_requests,group_solvitask_plumber,1,1,1,1
 access_requests_manager,requests.manager,model_solvitask_requests,group_solvitask_manager,1,1,1,1
