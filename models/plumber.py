@@ -83,14 +83,6 @@ class SolvitaskPlumber(models.Model):
         string="Requests"
     )
 
-    @api.model_create_multi
-    def create(self, vals_list):
-        """Give every new plumber the full week, Monday to Sunday.
-        """
-        plumbers = super().create(vals_list)
-        plumbers._ensure_week()
-        return plumbers
-
     def _ensure_week(self):
         """
         sudo(): nobody holds create rights on the slot table, by design.
@@ -124,23 +116,49 @@ class SolvitaskPlumber(models.Model):
             return False
         return slot.hour_from <= now < slot.hour_to
 
-    @api.model
+    @api.model_create_multi
     def create(self, vals):
-        plumber = super().create(vals)
-    
-        user = self.env["res.users"].create({
-            "name": f"{plumber.name} {plumber.surname}",
-            "login": plumber.email,
-            "email": plumber.email,
-            "street": plumber.address
-            "phone": plumber.phone
-            "groups_id": [
-                (6, 0, [self.env.ref("solvitask.group_solvitask_plumber").id])
-            ],
-        })
-        plumber.user_id = user.id
-    
-        return plumber
+        """Create the plumber, its Odoo user account, and weekly slots."""
+        user_model = self.env['res.users']
+
+        for vals in vals_list:
+            email = vals.get('email')
+
+            if not email:
+                raise ValidationError(
+                    'An email address is required to create a plumber.'
+                )
+            # Prevent duplicate Odoo accounts.
+            existing_user = user_model.search(
+                [('login', '=', email)],
+                limit=1,
+            )
+            if existing_user:
+                raise ValidationError(
+                    f'An Odoo user with the email "{email}" already exists.'
+                )
+
+            user = user_model.create({
+                'name': ' '.join(
+                    filter(None, [
+                        vals.get('name'),
+                        vals.get('surname'),
+                    ])
+                ),
+                'login': email,
+                'email': email,
+                'street': vals.get('address'),
+                'phone': vals.get('phone'),
+                'groups_id': [
+                    (4, self.env.ref('solvitask.group_solvitask_plumber').id),
+                ],
+            })
+            vals['user_id'] = user.id
+
+        plumbers = super().create(vals_list)
+        plumbers._ensure_week()
+
+        return plumbers
 
 class SolvitaskPlumberSlot(models.Model):
     _name = 'solvitask.plumber.slot'
