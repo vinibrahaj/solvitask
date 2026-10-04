@@ -82,9 +82,7 @@ class SolvitaskRequests(models.Model):
                 [('user_id', '=', req.requester_id.id)], limit=1)
             req.plumber_id = plumber
             req.customer_id = customer
-            req.source = ('plumber' if plumber
-                          else 'customer' if customer
-                          else 'manager')
+            req.source = ('plumber' if plumber else 'customer' if customer else False)
 
     def write(self, vals):
         is_manager = self.env.user.has_group('solvitask.group_solvitask_manager')
