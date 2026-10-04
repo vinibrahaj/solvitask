@@ -1,5 +1,5 @@
 from odoo import fields, models, api
-from odoo.exceptions import ValidationError
+from odoo.exceptions import ValidationError, UserError
 
 
 REQUEST_TRANSITIONS = {
@@ -49,10 +49,10 @@ class SolvitaskRequests(models.Model):
         compute='_compute_party', store=True, readonly=True
     )
     customer_id = fields.Many2one(
-        comodel_name='solvitask.customer', string='Customer'
-        compute='_compute_party', store='True', readonly=True)
+        comodel_name='solvitask.customer', string='Customer',
+        compute='_compute_party', store=True, readonly=True)
     plumber_id = fields.Many2one(
-        comodel_name='solvitask.plumber', string='Plumber'
+        comodel_name='solvitask.plumber', string='Plumber',
         compute='_compute_party', store=True, readonly=True)
 
     # --- workflow ---
