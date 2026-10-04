@@ -33,7 +33,7 @@
                                        groups="!solvitask.group_solvitask_customer"/>
                             </group>
                             <group string="Plumber Details"
-                                   groups="solvitask.group_solvitask_plumber">
+                                   groups="!solvitask.group_solvitask_customer">
                                 <field name="balance"/>
                                 <field name="hourly_rate"/>
                                 <field name="payment_method"/>
