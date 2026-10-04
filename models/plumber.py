@@ -39,12 +39,6 @@ class SolvitaskPlumber(models.Model):
         groups='!solvitask.group_solvitask_customer'
     )
 
-    slot_ids = fields.One2many(
-        comodel_name='solvitask.plumber.slot',
-        inverse_name='plumber_id',
-        string='Weekly Availability'
-    )
-
     hourly_rate = fields.Float(
         string='Hourly Rate', digits=(12, 2)
     )
@@ -71,6 +65,12 @@ class SolvitaskPlumber(models.Model):
         comodel_name='solvitask.service',
         string='Skills / Services')
 
+    slot_ids = fields.One2many(
+        comodel_name='solvitask.plumber.slot',
+        inverse_name='plumber_id',
+        string='Weekly Availability'
+    )
+
     job_ids = fields.Many2many(
         'solvitask.job',
         relation='solvitask_job_plumber_relation',
@@ -92,6 +92,9 @@ class SolvitaskPlumber(models.Model):
         return plumbers
 
     def _ensure_week(self):
+        """
+        sudo(): nobody holds create rights on the slot table, by design.
+        """
         slot_model = self.env['solvitask.plumber.slot'].sudo()
         for plumber in self:
             existing = plumber.sudo().slot_ids.mapped('day_of_week')
@@ -124,7 +127,7 @@ class SolvitaskPlumber(models.Model):
 class SolvitaskPlumberSlot(models.Model):
     _name = 'solvitask.plumber.slot'
     _description = 'Plumber Weekly Time Slot'
-    _order = 'day_id, hour_from'
+    _order = 'day_of_week'
 
     plumber_id = fields.Many2one(
         comodel_name='solvitask.plumber',
@@ -142,16 +145,6 @@ class SolvitaskPlumberSlot(models.Model):
         PLUMBER_HOURS, string='From', required=True, default=DEFAULT_FROM)
     hour_to = fields.Selection(
         PLUMBER_HOURS, string='To', required=True, default=DEFAULT_TO)
-
-    available_day_ids = fields.Many2many(
-        comodel_name='solvitask.weekday',
-        string='Selectable Days',
-        compute='_compute_available_day_ids')
-
-    _sql_constraints = [
-        ('uniq_plumber_day', 'unique(plumber_id, day_id)',
-         'This plumber already has a time frame for that day.'),
-    ]
 
 
     _sql_constraints = [
