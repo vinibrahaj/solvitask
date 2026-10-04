@@ -40,6 +40,9 @@ CANCELED_STAGE = 'stage_canceled'
 STARTED_STAGES = {'stage_in_progress', 'stage_ready_invoice',
                   'stage_invoiced', 'stage_paid'}
 
+PLUMBERS_HIDDEN_FROM_CUSTOMER = {'stage_ready_invoice', 'stage_invoiced',
+                                 'stage_paid', 'stage_canceled'}
+
 class SolvitaskJob(models.Model):
     _name = 'solvitask.job'
     _description = 'Service Request / Job'
