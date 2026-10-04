@@ -44,7 +44,7 @@
                             </group>
                         </group>
                         <group string="Availability">
-                            <field name="slot_ids" nolabel="1" colspan="2" readonly="1"">
+                            <field name="slot_ids" nolabel="1" colspan="2" readonly="1">
                                 <tree create='false' delete='false'>
                                     <field name="day_of_week"/>
                                     <field name="day_off" widget="boolean_toggle"/>
