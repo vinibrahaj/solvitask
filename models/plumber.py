@@ -117,7 +117,7 @@ class SolvitaskPlumber(models.Model):
         return slot.hour_from <= now < slot.hour_to
 
     @api.model_create_multi
-    def create(self, vals):
+    def create(self, vals_list):
         """Create the plumber, its Odoo user account, and weekly slots."""
         user_model = self.env['res.users']
 
