@@ -25,6 +25,6 @@
             <field name="implied_ids"
                    eval="[(4, ref('group_solvitask_customer')),
                           (4, ref('group_solvitask_plumber'))]"/>
-
+        </record>
     </data>
 </odoo>
