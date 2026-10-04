@@ -2,14 +2,29 @@ from odoo import fields, models, api
 from odoo.exceptions import ValidationError
 
 
+REQUEST_TRANSITIONS = {
+    'draft':     {'submitted'},
+    'submitted': {'approved', 'rejected'},
+    'approved':  set(),
+    'rejected':  set(),
+}
+
+# The only fields a manager may touch once a request is submitted.
+MANAGER_FIELDS = {'state', 'manager_note', 'decision_date'}
+
 class SolvitaskRequests(models.Model):
     _name = 'solvitask.requests'
     _description = 'Request from a customer or plumber to the manager'
     _order = 'create_date desc, id desc'
 
     name = fields.Char(string='Title', required=True)
-    description = fields.Text(string='Description')
+    description = fields.Text(string='Description', required=True)
 
+    requester_id = fields.Many2one(
+        'res.users', string='Requested By',
+        default=lambda self: self.env.user,
+        required=True, readonly=True
+    )
     request_type = fields.Selection(
         string='Type',
         selection=[
@@ -30,11 +45,15 @@ class SolvitaskRequests(models.Model):
     # --- who raised it ---
     source = fields.Selection(
         string='From',
-        selection=[('customer', 'Customer'), ('plumber', 'Plumber')],
-        required=True,
+        selection=[('customer', 'Customer'),('plumber', 'Plumber')],
+        compute='_compute_party', store=True, readonly=True
     )
-    customer_id = fields.Many2one('solvitask.customer', string='Customer')
-    plumber_id = fields.Many2one('solvitask.plumber', string='Plumber')
+    customer_id = fields.Many2one(
+        comodel_name='solvitask.customer', string='Customer'
+        compute='_compute_party', store='True', readonly=True)
+    plumber_id = fields.Many2one(
+        comodel_name='solvitask.plumber', string='Plumber'
+        compute='_compute_party', store=True, readonly=True)
 
     # --- workflow ---
     state = fields.Selection(
@@ -54,31 +73,49 @@ class SolvitaskRequests(models.Model):
     decision_date = fields.Datetime(string='Decision Date', readonly=True,
                                     copy=False)
 
-    @api.onchange('job_id')
-    def _onchange_job_id(self):
-        # Prefill the customer from the job when the request is from a customer.
-        if self.job_id and self.source == 'customer' and not self.customer_id:
-            self.customer_id = self.job_id.customer_id
-
-    @api.onchange('source')
-    def _onchange_source(self):
-        if self.source == 'customer':
-            self.plumber_id = False
-        elif self.source == 'plumber':
-            self.customer_id = False
-
-    @api.constrains('source', 'customer_id', 'plumber_id')
-    def _check_source_party(self):
+    @api.depends('requester_id')
+    def _compute_party(self):
         for req in self:
-            if req.source == 'customer' and not req.customer_id:
-                raise ValidationError(
-                    "Select the customer this request comes from.")
-            if req.source == 'plumber' and not req.plumber_id:
-                raise ValidationError(
-                    "Select the plumber this request comes from.")
+            plumber = self.env['solvitask.plumber'].sudo().search(
+                [('user_id', '=', req.requester_id.id)], limit=1)
+            customer = self.env['solvitask.customer'].sudo().search(
+                [('user_id', '=', req.requester_id.id)], limit=1)
+            req.plumber_id = plumber
+            req.customer_id = customer
+            req.source = ('plumber' if plumber
+                          else 'customer' if customer
+                          else 'manager')
 
-    # --- buttons: the manager still edits the job by hand; these just record
-    #     the decision and stamp the job so it shows as freshly updated. ---
+    def write(self, vals):
+        is_manager = self.env.user.has_group('solvitask.group_solvitask_manager')
+        for req in self:
+            new_state = vals.get('state', req.state)
+            if new_state != req.state and \
+                    new_state not in REQUEST_TRANSITIONS[req.state]:
+                raise UserError(
+                    "A request in '%s' cannot go back to '%s'."
+                    % (req.state, new_state))
+            if req.state != 'draft':
+                if not is_manager:
+                    raise UserError(
+                        "Once submitted, only the manager can act on this "
+                        "request.")
+                forbidden = set(vals) - MANAGER_FIELDS
+                if forbidden:
+                    raise UserError(
+                        "The title and description belong to whoever raised "
+                        "the request. You can only record a decision.")
+        return super().write(vals)
+
+    def unlink(self):
+        for req in self:
+            if req.state != 'draft':
+                raise UserError(
+                    "Only a request still in New can be deleted.")
+            if req.requester_id != self.env.user:
+                raise UserError("You can only delete your own requests.")
+        return super().unlink()
+
     def action_submit(self):
         self.write({'state': 'submitted'})
 
@@ -92,6 +129,3 @@ class SolvitaskRequests(models.Model):
         for req in self:
             req.state = 'rejected'
             req.decision_date = fields.Datetime.now()
-
-    def action_reset_to_draft(self):
-        self.write({'state': 'draft'})
