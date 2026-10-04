@@ -79,7 +79,7 @@ class SolvitaskPlumber(models.Model):
     request_ids = fields.One2many(
         comodel_name='solvitask.requests',
         inverse_name='plumber_id',
-        string="Requests"
+        string="Requests",
         groups='!solvitask.group_solvitask_customer'
     )
 
