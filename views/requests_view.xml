@@ -28,12 +28,14 @@
                                 invisible="state != 'approved'"/>
                         <div class="oe_title">
                             <label for="name"/>
-                            <h1><field name="name" placeholder="Short title"/></h1>
+                            <h1>
+                                <field name="name" readonly="state != 'draft' placeholder="Short title"/>
+                            </h1>
                         </div>
                         <group>
                             <group string="Request">
-                                <field name="request_type"/>
-                                <field name="job_id"/>
+                                <field name="request_type" readonly="state != 'draft'"/>
+                                <field name="job_id" readonly="state != 'draft'"/>
                                 <field name="decision_date" readonly="1"
                                        invisible="not decision_date"/>
                             </group>
@@ -48,7 +50,7 @@
                             </group>
                         </group>
                         <group string="Details">
-                            <field name="description" nolabel="1" colspan="2"
+                            <field name="description" nolabel="1" colspan="2" readonly="state != 'draft'"
                                    placeholder="Describe what is being requested..."/>
                         </group>
                         <group string="Manager Note">
