@@ -28,9 +28,9 @@
                                             invisible="not phone"/>
                                 </div>
                                 <field name="email" widget="email"
-                                       groups="solvitask.group_solvitask_plumber"/>
+                                       groups="!solvitask.group_solvitask_customer"/>
                                 <field name="address"
-                                       groups="solvitask.group_solvitask_plumber"/>
+                                       groups="!solvitask.group_solvitask_customer"/>
                             </group>
                             <group string="Plumber Details"
                                    groups="solvitask.group_solvitask_plumber">
