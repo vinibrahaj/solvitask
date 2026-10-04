@@ -4,6 +4,7 @@ from odoo import fields, models
 class SolvitaskCustomer(models.Model):
     _name = 'solvitask.customer'
     _description = 'Customer'
+    _inherit = ['solvitask.whatsapp.mixin']
 
     name = fields.Char(string='Name', required=True)
     surname = fields.Char(string='Surname')
