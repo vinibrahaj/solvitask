@@ -111,18 +111,39 @@ class SolvitaskPlumber(models.Model):
 class SolvitaskPlumberSlot(models.Model):
     _name = 'solvitask.plumber.slot'
     _description = 'Plumber Weekly Time Slot'
-    _order = 'day_of_week, hour_from'
+    _order = 'day_id, hour_from'
 
     plumber_id = fields.Many2one(
         comodel_name='solvitask.plumber',
         string='Plumber',
         required=True, ondelete='cascade'
     )
-    day_of_week = fields.Selection(WEEKDAYS, string='Day', required=True)
+    day_id = fields.Many2one(
+        comodel_name='solvitask.weekday',
+        string='Day',
+        required=True, ondelete='restrict')
+
     hour_from = fields.Selection(PLUMBER_HOURS, string='From', required=True,
                                 default='08:00')
     hour_to = fields.Selection(PLUMBER_HOURS, string='To', required=True,
                               default='16:00')
+
+    available_day_ids = fields.Many2many(
+        comodel_name='solvitask.weekday',
+        string='Selectable Days',
+        compute='_compute_available_day_ids')
+
+    _sql_constraints = [
+        ('uniq_plumber_day', 'unique(plumber_id, day_id)',
+         'This plumber already has a time frame for that day.'),
+    ]
+
+    @api.depends('plumber_id.slot_ids.day_id', 'day_id')
+    def _compute_available_day_ids(self):
+        all_days = self.env['solvitask.weekday'].search([])
+        for slot in self:
+            taken = slot.plumber_id.slot_ids.mapped('day_id') - slot.day_id
+            slot.available_day_ids = all_days - taken
 
     @api.constrains('hour_from', 'hour_to')
     def _check_hours(self):
