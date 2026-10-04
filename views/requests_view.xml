@@ -20,6 +20,12 @@
                                statusbar_visible="draft,submitted,approved"/>
                     </header>
                     <sheet>
+                        <widget name="web_ribbon" title="Rejected"
+                                bg_color="text-bg-danger"
+                                invisible="state != 'rejected'"/>
+                        <widget name="web_ribbon" title="Approved"
+                                bg_color="text-bg-success"
+                                invisible="state != 'approved'"/>
                         <div class="oe_title">
                             <label for="name"/>
                             <h1><field name="name" placeholder="Short title"/></h1>
