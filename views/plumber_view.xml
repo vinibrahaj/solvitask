@@ -16,8 +16,6 @@
                             </h1>
                         </div>
                         <group>
-                            <!-- Everything a customer is allowed to see:
-                                 name, surname, phone, skills. -->
                             <group string="Contact">
                                 <label for="phone"/>
                                 <div class="o_row">
@@ -46,11 +44,23 @@
                             </group>
                         </group>
                         <group string="Availability">
-                            <field name="slot_ids" nolabel="1" colspan="2">
-                                <tree editable="bottom">
+                            <field name="slot_ids" nolabel="1" colspan="2" readonly="1"
+                                   groups="!solvitask.group_solvitask_manager">
+                                <tree create='false' delete="false">
                                     <field name="day_of_week"/>
+                                    <field name="day_off" widget="boolean_toggle"/>
                                     <field name="hour_from"/>
                                     <field name="hour_to"/>
+                                </tree>
+                            </field>
+                            <field name="slot_ids" nolabel="1" colspan="2"
+                                   groups="solvitask.group_solvitask_manager">
+                                <tree editable="bottom"
+                                      create="false" delete="false">
+                                    <field name="day_of_week" readonly="1"/>
+                                    <field name="day_off" widget="boolean_toggle"/>
+                                    <field name="hour_from" readonly="day_off"/>
+                                    <field name="hour_to" readonly="day_off"/>
                                 </tree>
                             </field>
                         </group>
@@ -71,6 +81,7 @@
                             <page string="Requests">
                                 <field name="request_ids">
                                     <tree>
+                                        <field name="create_date"/>
                                         <field name="name"/>
                                         <field name="request_type"/>
                                         <field name="state"/>
@@ -108,6 +119,7 @@
                 <search string="Plumber">
                     <field name="name"/>
                     <field name="surname"/>
+                    <field name="phone"/>
                 </search>
             </field>
         </record>
