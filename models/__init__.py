@@ -3,4 +3,4 @@ from . import plumber
 from . import service
 from . import job
 from . import requests
-from . import whatsapp.mixin
+from . import whatsapp_mixin
