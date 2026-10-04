@@ -39,34 +39,40 @@
                                 <field name="payment_method"/>
                                 <field name="iban"
                                        invisible="payment_method != 'bank'"/>
-                                <field name="user_id"
-                                       groups="solvitask.group_solvitask_manager"/>
+                                <field name="user_id"/>
                             </group>
                         </group>
                         <group string="Availability">
-                            <field name="slot_ids" nolabel="1" colspan="2" readonly="1">
-                                <tree create='false' delete='false'>
+                            <!-- Customer / Plumber -->
+                            <field name="slot_ids"
+                                   nolabel="1"
+                                   colspan="2"
+                                   groups="!solvitask.group_solvitask_manager">
+                                <tree create="false" delete="false">
                                     <field name="day_of_week"/>
                                     <field name="day_off" widget="boolean_toggle"/>
                                     <field name="hour_from"/>
                                     <field name="hour_to"/>
                                 </tree>
                             </field>
-                            <field name="slot_ids" nolabel="1" colspan="2"
+                            <!-- Manager -->
+                            <field name="slot_ids"
+                                   nolabel="1"
+                                   colspan="2"
                                    groups="solvitask.group_solvitask_manager">
-                                <tree editable="bottom"
-                                      create="false" delete="false">
+                                <tree editable="bottom" create="false" delete="false">
                                     <field name="day_of_week" readonly="1"/>
                                     <field name="day_off" widget="boolean_toggle"/>
                                     <field name="hour_from" readonly="day_off"/>
                                     <field name="hour_to" readonly="day_off"/>
                                 </tree>
                             </field>
+                        
                         </group>
                         <group string="Skills">
                             <field name="service_ids" widget="many2many_tags"/>
                         </group>
-                        <notebook groups="!solvitask.group_solvitask_customer">
+                        <notebook>
                             <page string="Jobs">
                                 <field name="job_ids">
                                     <tree>
@@ -105,8 +111,7 @@
                             icon="fa-whatsapp" title="Message on WhatsApp"
                             class="text-success"/>
                     <field name="service_ids" widget="many2many_tags"/>
-                    <field name="hourly_rate"
-                           groups="solvitask.group_solvitask_plumber"/>
+                    <field name="hourly_rate"/>
                 </tree>
             </field>
         </record>
@@ -131,8 +136,7 @@
         </record>
 
         <menuitem name="Plumbers" id="plumber_menu" parent="solvitask_root"
-                  action="plumber_act_window" sequence="20"
-                  groups="solvitask.group_solvitask_plumber,solvitask.group_solvitask_manager"/>
+                  action="plumber_act_window" sequence="20"/>
 
     </data>
 </odoo>
