@@ -123,6 +123,24 @@ class SolvitaskPlumber(models.Model):
             return False
         return slot.hour_from <= now < slot.hour_to
 
+    @api.model
+    def create(self, vals):
+        plumber = super().create(vals)
+    
+        user = self.env["res.users"].create({
+            "name": f"{plumber.name} {plumber.surname}",
+            "login": plumber.email,
+            "email": plumber.email,
+            "street": plumber.address
+            "phone": plumber.phone
+            "groups_id": [
+                (6, 0, [self.env.ref("solvitask.group_solvitask_plumber").id])
+            ],
+        })
+        plumber.user_id = user.id
+    
+        return plumber
+
 class SolvitaskPlumberSlot(models.Model):
     _name = 'solvitask.plumber.slot'
     _description = 'Plumber Weekly Time Slot'
