@@ -48,7 +48,8 @@
         </record>
 
         <menuitem name="Services" id="service_menu" parent="solvitask_root"
-                  action="service_act_window" sequence="30"/>
+                  action="service_act_window" sequence="30"
+                  groups="solvitask.group_solvitask_manager"/>
 
     </data>
 </odoo>
