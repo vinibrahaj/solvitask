@@ -56,9 +56,10 @@ class SolvitaskPlumber(models.Model):
     user_id = fields.Many2one(
         comodel_name='res.users',
         string='Related User',
-        ondelete='set null',
+        readonly=True,
+        ondelete='restrict',
         groups='solvitask.group_solvitask_manager',
-        help='Login belonging to this plumber.'
+        help='Odoo user belongs to this plumber'
     )
     # Many workers <-> many services. Creates a hidden link table automatically.
     service_ids = fields.Many2many(
