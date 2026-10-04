@@ -159,7 +159,9 @@
         <record id="rule_requests_manager" model="ir.rule">
             <field name="name">Manager: all requests</field>
             <field name="model_id" ref="model_solvitask_requests"/>
-            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="domain_force">
+                ['|', ('state', '!=', 'draft'), ('requester_id', '=', user.id)]
+            </field>
             <field name="groups" eval="[(4, ref('group_solvitask_manager'))]"/>
         </record>
 
