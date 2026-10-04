@@ -12,7 +12,7 @@
                                 class="oe_highlight" invisible="state != 'draft'"/>
                         <button name="action_approve" type="object" string="Approve"
                                 class="oe_highlight" invisible="state != 'submitted'"
-                                groups="solvitask.group_solvitask_manager""/>
+                                groups="solvitask.group_solvitask_manager"/>
                         <button name="action_reject" type="object" string="Reject"
                                 invisible="state != 'submitted'"
                                 groups="solvitask.group_solvitask_manager"/>
