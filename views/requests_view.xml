@@ -39,15 +39,6 @@
                                 <field name="decision_date" readonly="1"
                                        invisible="not decision_date"/>
                             </group>
-                            <group string="From">
-                                <field name="source"/>
-                                <field name="customer_id"
-                                       invisible="source != 'customer'"
-                                       required="source == 'customer'"/>
-                                <field name="plumber_id"
-                                       invisible="source != 'plumber'"
-                                       required="source == 'plumber'"/>
-                            </group>
                         </group>
                         <group string="Details">
                             <field name="description" nolabel="1" colspan="2" readonly="state != 'draft'"
