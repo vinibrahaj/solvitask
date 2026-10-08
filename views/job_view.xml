@@ -11,8 +11,7 @@
                         group_create="false" group_edit="false" groups_draggable="false"
                         records_draggable="true">
                     <field name="stage_id"/>
-                    <field name="plumber_ids"
-                           groups="solvitask.group_solvitask_plumber"/>
+                    <field name="plumber_ids"/>
                     <templates>
                         <t t-name="kanban-box">
                             <div class="oe_kanban_card oe_kanban_global_click">
@@ -130,8 +129,7 @@
                                 <field name="work_notes"
                                        placeholder="What was found and fixed..."/>
                             </page>
-                            <page string="Price"
-                                  groups="!solvitask.group_solvitask_plumber">
+                            <page string="Price">
                                 <group class="oe_subtotal_footer">
                                     <field name="total_price" readonly="1"/>
                                 </group>
